@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MetricFlow</title>
+    <style>
+    </style>
+    <script>
+        templateJs
+    </script>
+    <script>
+        window.onload = function () {
+            let options = {
+                "flow": "flowValue",
+                'link-width-offset': -1,
+                'link-start-offsetx': 0,
+            };
+            let metricFlow = MetricFlow("graph", options);
+            nodesText
+            ;
+            let nodes = nodesList;
+            if (options['flow'] == 'vertical') {
+                nodes[0]['x'] = window.screen.width / 2 - 300;
+                nodes[0]['y'] = 10;
+            } else {
+                nodes[0]['x'] = 10;
+                nodes[0]['y'] = window.screen.height / 2 - 300;
+            }
+            nodesMap = new Map();
+            nodes[nodes[0]['id']] = [nodes[0]['x'], nodes[0]['y']]
+            for (let i = 1; i < nodes.length; i++) {
+                let id = nodes[i]['id'];
+                if (nodes[i].hasOwnProperty("from") == true) {
+                    let form = nodes[i]['from'];
+                    if (form instanceof Array) {
+                        let formJX = 0;
+                        let formJY = 0;
+                        for (let j = 0; j < form.length; j++) {
+                            let formJ = nodesMap[form[j]]
+                            formJX += formJ[0]
+                            formJY += formJ[1]
+                        }
+                        if (options['flow'] == 'vertical') {
+                            nodes[i]['x'] = formJX / form.length;
+                            nodes[i]['y'] = nodes[i - 1]['y'] + 150;
+                        } else {
+                            nodes[i]['x'] = nodes[i - 1]['x'] + nodes[i - 1]['data'][0]['name'].length * 9.5;
+                            nodes[i]['y'] = formJY / form.length;
+                        }
+                    } else {
+                        if (options['flow'] == 'vertical') {
+                            nodes[i]['x'] = nodes[i - 1]['x'];
+                            nodes[i]['y'] = nodes[i - 1]['y'] + 150;
+                        } else {
+                            nodes[i]['x'] = nodes[i - 1]['x'] + nodes[i - 1]['data'][0]['name'].length * 9.5;
+                            nodes[i]['y'] = nodes[i - 1]['y'];
+                        }
+                    }
+                } else {
+                    if (options['flow'] == 'vertical') {
+                        nodes[i]['x'] = nodes[i - 1]['x'] + 260;
+                        nodes[i]['y'] = nodes[i - 1]['y'];
+                    } else {
+                        nodes[i]['x'] = nodes[i - 1]['x'];
+                        nodes[i]['y'] = nodes[i - 1]['y'] + 150;
+                    }
+                }
+                nodesMap[id] = [nodes[i]['x'], nodes[i]['y']]
+            }
+            let bodyWidth = nodes.length % 10;
+            if (options['flow'] == 'vertical') {
+                document.getElementById("graph").setAttribute("height", 700 * bodyWidth + 500 + "px")
+                document.getElementById("svgBack").setAttribute("height", 700 * bodyWidth + 500)
+            } else {
+                document.getElementById("graph").setAttribute("width", 1000 * bodyWidth + 500 + "px")
+                document.getElementById("svgBack").setAttribute("width", 1000 * bodyWidth + 500)
+            }
+            metricFlow.createNodes(nodes);
+        }
+    </script>
+</head>
+<body>
+<div id="graph" height="700px" width="1100px">
+</div>
+</body>
+</html>
