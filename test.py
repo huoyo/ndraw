@@ -50,4 +50,4 @@ import ndraw
 # ndraw.render(model)
 
 # 该方式会启动一个web服务  本地9999端口访问
-ndraw.server(model())
+ndraw.server("model")

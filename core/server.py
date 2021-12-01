@@ -79,6 +79,15 @@ def _generate_nodes_data(node_name, res):
 
 
 def server(model, host='localhost', port=9999, flow="horizontal"):
+    '''
+    start a webserver to show model structure
+    :param model: a model object such as tf.keras.Sequential/tf.keras.Model,
+                  or h5 model path such as mnist.h5 and pb model path
+    :param host: webserver host,default value is localhost
+    :param port: webserver port,default value is 9999
+    :param flow: layout style：vertical and horizontal
+    :return:
+    '''
     from http.server import HTTPServer, BaseHTTPRequestHandler
     logging.info("see http://{}:{}".format(host, port))
     html = render(model, out_file=None, flow=flow)
@@ -95,6 +104,16 @@ def server(model, host='localhost', port=9999, flow="horizontal"):
 
 
 def render(model, out_file='model.html', flow="horizontal"):
+    '''
+    start a webserver to show model structure
+    :param model: a model object such as tf.keras.Sequential/tf.keras.Model,
+                  or h5 model path such as mnist.h5 and pb model path
+    :param host: webserver host,default value is localhost
+    :param port: webserver port,default value is 9999
+    :param flow: layout style：vertical and horizontal
+    :param out_file: html file path that model will generate
+    :return: html
+    '''
     if tf:
         if isinstance(model, tf.keras.Sequential) or isinstance(model, tf.keras.Model):
             nodes_text = []
@@ -114,6 +133,12 @@ def render(model, out_file='model.html', flow="horizontal"):
                 with open(out_file, 'w', encoding='utf-8') as file_w:
                     file_w.write(html)
             return html
-
+        elif isinstance(model, str):
+            try:
+                h5model = tf.keras.models.load_model(model)
+                return render(h5model)
+            except Exception as e:
+                logging.error("invalid model path")
+                raise e
         else:
             logging.error("invalid model!")
