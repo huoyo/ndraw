@@ -23,7 +23,7 @@ python setup.py install
 
 > 可以参考test.py
 
-### 1、pb模型可视化话
+### 1、pb模型可视化
 ```
 --pbpath
   |--variables
@@ -37,7 +37,7 @@ ndraw.server("pbpath")
 # 打开浏览器访问9999端口即可
 ```
 
-### 2、h5模型可视化话
+### 2、h5模型可视化
 
 ```python
 import ndraw
