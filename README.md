@@ -78,4 +78,6 @@ html = ndraw.render("pb/h5/mode均可",out_file="model.html")
 
 ## 参考图
 
-![输入图片说明](imagesimage.png)
+![输入图片说明](image.png)
+
+![输入图片说明](1image.png)
