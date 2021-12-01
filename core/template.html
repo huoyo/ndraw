@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MetricFlow</title>
+    <title>ndraw</title>
     <style>
     </style>
     <script>
@@ -44,7 +44,7 @@
                             nodes[i]['x'] = formJX / form.length;
                             nodes[i]['y'] = nodes[i - 1]['y'] + 150;
                         } else {
-                            nodes[i]['x'] = nodes[i - 1]['x'] + nodes[i - 1]['data'][0]['name'].length * 9.5;
+                            nodes[i]['x'] = nodes[i - 1]['x'] + nodes[i - 1]['data'][0]['name'].length * 10.5;
                             nodes[i]['y'] = formJY / form.length;
                         }
                     } else {
@@ -52,7 +52,7 @@
                             nodes[i]['x'] = nodes[i - 1]['x'];
                             nodes[i]['y'] = nodes[i - 1]['y'] + 150;
                         } else {
-                            nodes[i]['x'] = nodes[i - 1]['x'] + nodes[i - 1]['data'][0]['name'].length * 9.5;
+                            nodes[i]['x'] = nodes[i - 1]['x'] + nodes[i - 1]['data'][0]['name'].length * 10.5;
                             nodes[i]['y'] = nodes[i - 1]['y'];
                         }
                     }

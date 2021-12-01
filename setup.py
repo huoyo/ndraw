@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 '''
 @Desc  :
-@Author:   zhangchang
+@Author:   Chang Zhang
 @Date  :   2021/12/1 21:11
 '''
 from setuptools import find_packages,setup

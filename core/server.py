@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 '''
 @Desc  :
-@Author:   zhangchang
+@Author:   Chang Zhang
 @Date  :   2021/12/1 20:31
 '''
 import logging
@@ -30,6 +30,11 @@ def _parse_layer(layer):
         "output_shape": str(layer.output_shape),
         "activation": str(layer.activation.__name__) if hasattr(layer, 'activation') else 'None',
         "input": list(input),
+        "filters": layer.filters if hasattr(layer,'filters') else 0,
+        "kernel_size": layer.kernel_size if hasattr(layer,'kernel_size') else 0,
+        "strides": layer.strides if hasattr(layer,'strides') else 0,
+        "units": layer.units if hasattr(layer,'units') else 0,
+        "rate": layer.rate if hasattr(layer,'rate') else 0,
     }
     return res
 
