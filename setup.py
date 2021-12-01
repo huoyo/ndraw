@@ -12,7 +12,8 @@ setup(
     packages = find_packages(),
     author = 'Chang Zhang',
     author_email = '1729913829@qq.com',
-    url = 'www.langpy.cn',
+    url = 'https://gitee.com/huoyo/ndraw',
+    license="Apache License",
     description = 'a tool to show neural networks',
     data_files = [
         ('core',['core/MetricFlow.js','core/template.html']),]

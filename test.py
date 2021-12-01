@@ -6,7 +6,6 @@
 @Date  :   2021/12/1 20:31
 '''
 
-import ndraw
 import tensorflow as tf
 
 
@@ -45,8 +44,10 @@ def model3():
     ])
     model.build(input_shape=(None, 100))
     return model
+
+import ndraw
 #该方式会在本地生成一个model.html的文件  直接浏览器打开即可
 # ndraw.render(model)
 
 # 该方式会启动一个web服务  本地9999端口访问
-ndraw.server(model3(), flow='horizontal')
+ndraw.server(model())
