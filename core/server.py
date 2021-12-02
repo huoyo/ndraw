@@ -32,11 +32,11 @@ def _parse_layer(layer):
         "output_shape": str(layer.output_shape),
         "activation": str(layer.activation.__name__) if hasattr(layer, 'activation') else 'None',
         "input": list(input),
-        "filters": layer.filters if hasattr(layer, 'filters') else 0,
-        "kernel_size": layer.kernel_size if hasattr(layer, 'kernel_size') else 0,
-        "strides": layer.strides if hasattr(layer, 'strides') else 0,
-        "units": layer.units if hasattr(layer, 'units') else 0,
-        "rate": layer.rate if hasattr(layer, 'rate') else 0,
+        "filters": layer.filters if hasattr(layer, 'filters') else None,
+        "kernel_size": layer.kernel_size if hasattr(layer, 'kernel_size') else None,
+        "strides": layer.strides if hasattr(layer, 'strides') else None,
+        "units": layer.units if hasattr(layer, 'units') else None,
+        "rate": layer.rate if hasattr(layer, 'rate') else None,
     }
     return res
 
@@ -66,41 +66,23 @@ def _get_style(theme):
 def _generate_nodes_data(node_name, res, theme=Theme.DEFAULT):
     style = _get_style(theme)
     if len(res['input']) == 0:
-        node_text = ' let ' + node_name + '= {' \
-                                          '"style":"' + style['node'] + '",\
-                                 "id":"' + res['name'] + '",\
-                                "title":{"name":"' + res['class'] + '","style":"' + style['title'] + '"},\
-                                "data":[\
-                                    {"name":"input_shape：' + res['input_shape'] + '","style":"' + style['element'] + '"},\
-                                    {"name":"output_shape：' + res['output_shape'] + '","style":"' + style['element'] + '"},\
-                                    {"name":"activation：' + res['activation'] + '","style":"' + style['element'] + '"}\
-                                ]\
-                            }\n'
+        node_text_from = ''
     elif len(res['input']) == 1:
-        node_text = ' let ' + node_name + '= {    ' \
-                                          '"style":"' + style['node'] + '",\
-                                          "id":"' + res['name'] + '","from":"' + res['input'][0] + '",\
-                             "title":{"name":"' + res['class'] + '","style":"' + style['title'] + '"},\
-                             "data":[\
-                                   {"name":"input_shape：' + res['input_shape'] + '","style":"' + style['element'] + '"},\
-                                    {"name":"output_shape：' + res['output_shape'] + '","style":"' + style['element'] + '"},\
-                                    {"name":"activation：' + res['activation'] + '","style":"' + style['element'] + '"}\
-                             ],\
-                         }\n'
+        node_text_from = '"from":"' + res['input'][0] + '",'
     else:
-        node_text = ' let ' + node_name + '= {' \
-                                          '"style":"' + style['node'] + '",\
-                                                               "id":"' + res['name'] + '",\
-                              "from":' + str(res['input']) + ',\
-                           "title":{"name":"' + res['class'] + '","style":"' + style['title'] + '"},\
-                             "data":[\
-                                {"name":"input_shape：' + res['input_shape'] + '","style":"' + style['element'] + '"},\
-                                    {"name":"output_shape：' + res['output_shape'] + '","style":"' + style['element'] + '"},\
-                                    {"name":"activation：' + res['activation'] + '","style":"' + style['element'] + '"}\
-                             ]\
-                         }\n'
+        node_text_from = '"from":' + str(res['input']) + ','
 
-    return node_text
+    node_text_start = ' let ' + node_name + '= {"style":"' + style['node'] + '", ' + node_text_from + ' "id":"' + res[
+        'name'] + '","title":{"name":"' + res['class'] + '","style":"' + style['title'] + '"},"data":['
+    node_text_end = ']}\n'
+    node_text_mid = []
+    for key in res.keys():
+        value = res[key]
+        if key not in ['name', 'class', 'input'] and value is not None:
+            text = '{"name":"' + key + '：' + (value if isinstance(value, str) else str(value)) + '","style":"' + style[
+                'element'] + '"},'
+            node_text_mid.append(text)
+    return node_text_start + ''.join(node_text_mid) + node_text_end
 
 
 def server(model, host='localhost', port=9999, flow="horizontal", theme=Theme.DEFAULT):
