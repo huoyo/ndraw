@@ -68,7 +68,41 @@ html = ndraw.render("pb/h5/mode均可",out_file="model.html")
 # 生成一个model.html文件
 ```
 
-### 5、其他参数
+### 5、可视化主题
+
+1、DEFAULT
+
+```python
+import ndraw
+ndraw.server("model.h5",theme=ndraw.DEDEFAULT)
+```
+![default](image/default.png)
+
+2、BLACK_WHITE
+
+```python
+import ndraw
+ndraw.server("model.h5",theme=ndraw.BLACK_WHITE)
+```
+![black_white](image/black_white.png)
+
+3、LIGHTBLACK_WHITE
+
+```python
+import ndraw
+ndraw.server("model.h5",theme=ndraw.LIGHTBLACK_WHITE)
+```
+![lightblack_white](image/lightblack_white.png)
+
+4、GREEN_WHITE
+
+```python
+import ndraw
+ndraw.server("model.h5",theme=ndraw.GREEN_WHITE)
+```
+![green_white](image/green_white.png)
+
+### 6、其他参数
 
 ```
 :param host: 服务地址 可自定义
