@@ -2,7 +2,7 @@
 
 ---
 
-<div  align="center">
+<div >
     <img src='https://shields.io/badge/version-1.0.5-green.svg'>
     <img src='https://shields.io/badge/dependencies-tensorflow/metricflow.js-blue.svg'>
     <img src='https://shields.io/badge/author-Chang Chang-dbab09.svg'>
