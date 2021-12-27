@@ -1,4 +1,14 @@
 # ndraw
+
+---
+
+<div  align="center">
+    <img src='https://shields.io/badge/version-1.0.5-green.svg'>
+    <img src='https://shields.io/badge/dependencies-tensorflow/metricflow.js-blue.svg'>
+    <img src='https://shields.io/badge/author-Chang Chang-dbab09.svg'>
+    
+</div>
+
 ndraw是一个简单的神经网络可视化工具
 
 ## 安装
@@ -74,7 +84,7 @@ html = ndraw.render("pb/h5/mode均可",out_file="model.html")
 
 ```python
 import ndraw
-ndraw.server("model.h5",theme=ndraw.DEDEFAULT)
+ndraw.server("model.h5",theme=ndraw.DEFAULT)
 ```
 ![default](image/default.png)
 
