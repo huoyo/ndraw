@@ -3,7 +3,7 @@
 ---
 
 <div >
-    <img src='https://shields.io/badge/version-1.0.7-green.svg'>
+    <img src='https://shields.io/badge/version-1.0.8-green.svg'>
     <img src='https://shields.io/badge/dependencies-tensorflow/metricflow.js-blue.svg'>
     <img src='https://shields.io/badge/author-Chang Zhang-dbab09.svg'>
     <h4>ndraw是一个简单的神经网络可视化以及自定义网络图工具,目前支持Tensorflow2.0+模型可视化</h4>
@@ -223,6 +223,21 @@ ndraw.server(graphs)
 ```
 
 ![输入图片说明](image/auto-sum.png)
+
+### 6、自定义图形位置
+
+```python
+# -*- encoding: utf-8 -*-
+import ndraw
+g = ndraw.StableGraph()
+
+node1 = g.add_node(ndraw.Node(name='节点1',x=10,y=10))
+node2 = g.add_node(ndraw.Node(name='节点2',data =['111111111','22222222'],x=200,y=10))
+node3 = g.add_node(ndraw.Node(name='节点3',data =['111111111','22222222'],x=10,y=200))
+g.add_link((node1,node2))
+g.add_link((node1,node3))
+ndraw.server(g,theme=ndraw.DEFAULT)
+```
 
 
 ## 参考图
