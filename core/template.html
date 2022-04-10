@@ -14,6 +14,8 @@
                 "flow": "flowValue",
                 'link-width-offset': -1,
                 'link-start-offsetx': 0,
+                'link-start-offsety': -3,
+                'link-end-offsety': -3,
                 'link-color': '#666666',
             };
             let metricFlow = MetricFlow("graph", options);
@@ -28,41 +30,54 @@
                 nodes[0]['y'] = window.screen.height / 2 - 300;
             }
             nodesMap = new Map();
+            nodesMap[nodes[0]['id']] = [nodes[0]['x'], nodes[0]['y']]
             nodes[nodes[0]['id']] = [nodes[0]['x'], nodes[0]['y']]
             for (let i = 1; i < nodes.length; i++) {
                 let id = nodes[i]['id'];
-                if (nodes[i].hasOwnProperty("from") == true) {
+                if (nodes[i].hasOwnProperty("from") == true && nodes[i]['from'] != null) {
                     let form = nodes[i]['from'];
                     if (form instanceof Array) {
-                        let formJX = 0;
-                        let formJY = 0;
-                        for (let j = 0; j < form.length; j++) {
-                            let formJ = nodesMap[form[j]]
-                            formJX += formJ[0]
-                            formJY += formJ[1]
-                        }
+                        let middleXy = getMiddleXy(form, nodesMap);
+                        let mx = middleXy[0];
+                        let my = middleXy[1];
                         if (options['flow'] == 'vertical') {
-                            nodes[i]['x'] = formJX / form.length;
+                            nodes[i]['x'] = mx;
                             nodes[i]['y'] = nodes[i - 1]['y'] + 150;
                         } else {
-                            let xOfferset =  (nodes[i - 1].hasOwnProperty('data')==true?nodes[i - 1]['data'][0]['name'].length:nodes[i - 1]['title']['name'].length)*10.5;
-                            if (xOfferset!==xOfferset || xOfferset<100) {
+                            let xOfferset = (nodes[i - 1].hasOwnProperty('data') == true ? nodes[i - 1]['data'][0]['name'].length : nodes[i - 1]['title']['name'].length) * 10.5;
+                            if (xOfferset !== xOfferset || xOfferset < 100) {
                                 xOfferset = 150
                             }
-                            nodes[i]['x'] = nodes[i - 1]['x'] +xOfferset;
-                            nodes[i]['y'] = formJY / form.length;
+                            nodes[i]['x'] = nodes[i - 1]['x'] + xOfferset;
+                            nodes[i]['y'] = my
                         }
                     } else {
+                        let parentXy = nodesMap[form];
                         if (options['flow'] == 'vertical') {
-                            nodes[i]['x'] = nodes[i - 1]['x'];
-                            nodes[i]['y'] = nodes[i - 1]['y'] + 150;
+                            if (parentXy == undefined || parentXy == null) {
+                                nodes[i]['x'] = nodes[i - 1]['x'];
+                                nodes[i]['y'] = nodes[i - 1]['y'] + 150;
+                            } else {
+                                nodes[i]['x'] = parentXy[0];
+                                nodes[i]['y'] = parentXy[1] + 150;
+                            }
+
                         } else {
-                             let xOfferset =  (nodes[i - 1].hasOwnProperty('data')==true?nodes[i - 1]['data'][0]['name'].length:nodes[i - 1]['title']['name'].length) *10.5;
-                               if (xOfferset!==xOfferset || xOfferset<100) {
+                            let xOfferset = (nodes[i - 1].hasOwnProperty('data') == true ? nodes[i - 1]['data'][0]['name'].length : nodes[i - 1]['title']['name'].length) * 10.5;
+                            if (xOfferset !== xOfferset || xOfferset < 100) {
                                 xOfferset = 150
                             }
-                            nodes[i]['x'] = nodes[i - 1]['x'] + xOfferset
-                            nodes[i]['y'] = nodes[i - 1]['y'];
+                            if (parentXy == undefined || parentXy == null) {
+                                nodes[i]['x'] = nodes[i - 1]['x'] + xOfferset
+                                nodes[i]['y'] = nodes[i - 1]['y'];
+                            } else {
+                                nodes[i]['x'] = parentXy[0] + xOfferset
+                                nodes[i]['y'] = parentXy[1];
+                            }
+                            if (nodes[i]['from']!=nodes[i-1]['id']) {
+                                nodes[i-1]['y'] = nodes[i-1]['y']-100
+                                nodes[i]['y'] = nodes[i-1]['y']+120
+                            }
                         }
                     }
                 } else {
@@ -85,6 +100,25 @@
                 document.getElementById("svgBack").setAttribute("width", 1000 * bodyWidth + 500)
             }
             metricFlow.createNodes(nodes);
+        }
+
+        function getMiddleXy(form, nodesMap) {
+            let mx = 0;
+            let my = 0;
+            if (form.length % 2 == 0) {
+                let m1Index = form.length / 2 - 1;
+                let m2Index = (form.length / 2);
+                let m1Xy = nodesMap[form[m1Index]];
+                let m2Xy = nodesMap[form[m2Index]];
+                mx = (m1Xy[0] + m2Xy[0]) / 2;
+                my = (m1Xy[1] + m2Xy[1]) / 2;
+            } else {
+                let m1Index = Math.ceil(form.length / 2) - 1;
+                let m1Xy = nodesMap[form[m1Index]];
+                mx = m1Xy[0];
+                my = m1Xy[1];
+            }
+            return [mx, my]
         }
     </script>
 </head>
