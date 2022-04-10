@@ -6,11 +6,13 @@
 @Date  :   2021/12/1 20:31
 '''
 import logging
-from core import template_html
+from core import auto_template_html
+from core import stable_template_html
 from core import template_js
 from core.constant import Flow
 from core.constant import Theme
 from draw.graph import AutoGraph
+from draw.graph import StableGraph
 
 logging.basicConfig(level=logging.INFO)
 try:
@@ -108,7 +110,14 @@ def _generate_graph_nodes_data(node_name, res, theme=Theme.DEFAULT):
     elif isinstance(res.from_id,list):
         node_text_from = '"from":' + str(res.from_id)+ ','
 
-    node_text_start = ' let ' + node_name + '= {"style":"' + style['node'] + '", ' + node_text_from + ' "id":"' + res.id + '","title":{"name":"' + res.name + '","style":"' + style['title'] + '"}'
+    xy = ''
+    if hasattr(res,'x'):
+        node_text_from = '"x":' + str(res.x) + ','
+
+    if hasattr(res, 'y'):
+        node_text_from = node_text_from+'"y":' + str(res.y) + ','
+
+    node_text_start = ' let ' + node_name + '= {'+xy+'"style":"' + style['node'] + '", ' + node_text_from + ' "id":"' + res.id + '","title":{"name":"' + res.name + '","style":"' + style['title'] + '"}'
     data_pre = ''
     data_suf = ''
     node_text_end = '}\n'
@@ -157,18 +166,30 @@ def server(model, host='localhost', port=9999, flow="horizontal", theme=Theme.DE
     server.serve_forever()
 
 
-def render_graph(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT):
+def render_graph(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT,template_type='auto'):
     nodes_text = []
     nodes = []
+    link_ids = []
+
     for i,node in enumerate(model.nodes):
         node_name = f'graphnode{i}'
         nodes_text.append(_generate_graph_nodes_data(node_name, node, theme=(theme if node.theme is None else node.theme)))
         nodes.append(node_name)
-    html = template_html \
-        .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
-        .replace("templateJs", template_js) \
-        .replace("nodesText", ';'.join(nodes_text)) \
-        .replace("nodesList", str(nodes).replace('\'', ''))
+    if template_type=='auto':
+        html = auto_template_html \
+            .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
+            .replace("templateJs", template_js) \
+            .replace("nodesText", ';'.join(nodes_text)) \
+            .replace("nodesList", str(nodes).replace('\'', ''))
+    else:
+        for j, link in enumerate(model.links):
+            link_ids.append([link[0].id, link[1].id])
+        html = stable_template_html \
+            .replace("templateJs", template_js) \
+            .replace("nodesText", ';'.join(nodes_text)) \
+            .replace("nodesList", str(nodes).replace('\'', ''))\
+            .replace("linksList", str(link_ids))
+
     if out_file is not None and out_file.endswith(".html"):
         with open(out_file, 'w', encoding='utf-8') as file_w:
             file_w.write(html)
@@ -201,7 +222,7 @@ def render(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT)
                 nodes_text.append(_generate_nodes_data(node_name, res, theme=theme))
                 nodes.append(node_name)
 
-            html = template_html \
+            html = auto_template_html \
                 .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
                 .replace("templateJs", template_js) \
                 .replace("nodesText", ';'.join(nodes_text)) \
@@ -219,10 +240,14 @@ def render(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT)
                 raise e
         elif isinstance(model, AutoGraph):
             return render_graph(model,flow=flow,theme=theme,out_file=out_file)
+        elif isinstance(model, StableGraph):
+            return render_graph(model, flow=flow, theme=theme, out_file=out_file, template_type='stable')
         else:
-            logging.error("invalid model!")
+            logging.error("invalid Graph!")
     else:
         if isinstance(model, AutoGraph):
           return render_graph(model,flow=flow,theme=theme,out_file=out_file)
+        elif isinstance(model, StableGraph):
+          return render_graph(model,flow=flow,theme=theme,out_file=out_file,template_type='stable')
         else:
-            logging.error("invalid model!")
+            logging.error("invalid Graph!")

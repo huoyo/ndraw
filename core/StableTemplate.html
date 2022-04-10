@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ndraw</title>
+    <style>
+    </style>
+    <script>
+        templateJs
+    </script>
+    <script>
+        window.onload = function () {
+            let options = {
+                "flow": "flowValue",
+                'link-width-offset': -1,
+                'link-start-offsetx': 0,
+                'link-start-offsety': -3,
+                'link-end-offsety': -3,
+                'link-color': '#666666',
+            };
+            let metricFlow = MetricFlow("graph", options);
+            nodesText;
+            let nodes = nodesList;
+            let links = linksList;
+            let nodesMap = new Map();
+            for (let i = 0; i < nodes.length; i++) {
+                let node = metricFlow.createNode(nodes[i])
+                nodesMap[node.id] = node;
+            }
+             for (let j = 0; j < links.length; j++) {
+                 let source = nodesMap[links[j][0]];
+                 let target = nodesMap[links[j][1]];
+                 metricFlow.createLink(source,target)
+             }
+            let bodyWidth = nodes.length % 10;
+            if (options['flow'] == 'vertical') {
+                document.getElementById("graph").setAttribute("height", 700 * bodyWidth + 500 + "px")
+                document.getElementById("svgBack").setAttribute("height", 700 * bodyWidth + 500)
+            } else {
+                document.getElementById("graph").setAttribute("width", 1000 * bodyWidth + 500 + "px")
+                document.getElementById("svgBack").setAttribute("width", 1000 * bodyWidth + 500)
+            }
+        }
+
+    </script>
+</head>
+<body>
+<div id="graph" height="700px" width="1100px">
+</div>
+</body>
+</html>

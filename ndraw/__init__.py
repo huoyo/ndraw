@@ -3,6 +3,7 @@ from core.server import render
 from core.server import server
 from draw.node import Node
 from draw.graph import AutoGraph
+from draw.graph import StableGraph
 
 from core.constant import Flow
 from core.constant import Theme

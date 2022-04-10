@@ -29,15 +29,22 @@
                 nodes[0]['x'] = 10;
                 nodes[0]['y'] = window.screen.height / 2 - 300;
             }
+            nodeXysMap = new Map();
             nodesMap = new Map();
-            nodesMap[nodes[0]['id']] = [nodes[0]['x'], nodes[0]['y']]
-            nodes[nodes[0]['id']] = [nodes[0]['x'], nodes[0]['y']]
+            nodes[0]['to'] = []
+            nodesMap[nodes[0]['id']] = nodes[0]
+            nodeXysMap[nodes[0]['id']] = [nodes[0]['x'], nodes[0]['y']]
             for (let i = 1; i < nodes.length; i++) {
                 let id = nodes[i]['id'];
                 if (nodes[i].hasOwnProperty("from") == true && nodes[i]['from'] != null) {
                     let form = nodes[i]['from'];
                     if (form instanceof Array) {
-                        let middleXy = getMiddleXy(form, nodesMap);
+                       for (let fi = 0; fi < form.length; fi++) {
+                           if (nodesMap[form[fi]]['to'].indexOf(nodes[i].id)==-1) {
+                              nodesMap[form[fi]]['to'].push(nodes[i].id);
+                           }
+                       }
+                        let middleXy = getMiddleXy(form, nodeXysMap);
                         let mx = middleXy[0];
                         let my = middleXy[1];
                         if (options['flow'] == 'vertical') {
@@ -52,7 +59,10 @@
                             nodes[i]['y'] = my
                         }
                     } else {
-                        let parentXy = nodesMap[form];
+                        if (nodesMap[form]['to'].indexOf(nodes[i].id)==-1) {
+                            nodesMap[form]['to'].push(nodes[i].id);
+                        }
+                        let parentXy = nodeXysMap[form];
                         if (options['flow'] == 'vertical') {
                             if (parentXy == undefined || parentXy == null) {
                                 nodes[i]['x'] = nodes[i - 1]['x'];
@@ -89,7 +99,10 @@
                         nodes[i]['y'] = nodes[i - 1]['y'] + 150;
                     }
                 }
-                nodesMap[id] = [nodes[i]['x'], nodes[i]['y']]
+                nodeXysMap[id] = [nodes[i]['x'], nodes[i]['y']];
+                nodes[i]['to'] = []
+                nodesMap[id] = nodes[i];
+
             }
             let bodyWidth = nodes.length % 10;
             if (options['flow'] == 'vertical') {
