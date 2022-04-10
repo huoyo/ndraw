@@ -101,7 +101,7 @@ def _generate_nodes_data(node_name, res, theme=Theme.DEFAULT):
             node_text_mid.append(text)
     return node_text_start + ''.join(node_text_mid) + node_text_end
 
-def _generate_graph_nodes_data(node_name, res, theme=Theme.DEFAULT):
+def _generate_graph_nodes_data(node_name, res, theme=Theme.DEFAULT,is_auto=True):
     style = _get_style(theme)
     if res.from_id is None:
         node_text_from = ''
@@ -111,10 +111,10 @@ def _generate_graph_nodes_data(node_name, res, theme=Theme.DEFAULT):
         node_text_from = '"from":' + str(res.from_id)+ ','
 
     xy = ''
-    if hasattr(res,'x'):
+    if hasattr(res,'x') and is_auto==False:
         node_text_from = '"x":' + str(res.x) + ','
 
-    if hasattr(res, 'y'):
+    if hasattr(res, 'y') and is_auto==False:
         node_text_from = node_text_from+'"y":' + str(res.y) + ','
 
     node_text_start = ' let ' + node_name + '= {'+xy+'"style":"' + style['node'] + '", ' + node_text_from + ' "id":"' + res.id + '","title":{"name":"' + res.name + '","style":"' + style['title'] + '"}'
@@ -173,7 +173,7 @@ def render_graph(model, out_file='model.html', flow="horizontal", theme=Theme.DE
 
     for i,node in enumerate(model.nodes):
         node_name = f'graphnode{i}'
-        nodes_text.append(_generate_graph_nodes_data(node_name, node, theme=(theme if node.theme is None else node.theme)))
+        nodes_text.append(_generate_graph_nodes_data(node_name, node, theme=(theme if node.theme is None else node.theme),is_auto= True if template_type=='auto' else False))
         nodes.append(node_name)
     if template_type=='auto':
         html = auto_template_html \

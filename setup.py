@@ -9,7 +9,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='ndraw',
-    version='1.0.8',
+    version='1.0.10',
     packages=find_packages(),
     author='Chang Zhang',
     author_email='1729913829@qq.com',
@@ -18,5 +18,5 @@ setup(
     include_package_data=True,
     description='a tool to show neural networks',
     data_files=[
-        ('core', ['core/MetricFlow.js', 'core/template.html']), ]
+        ('core', ['core/MetricFlow.js', 'core/AutoTemplate.html', 'core/StableTemplate.html']), ]
 )
