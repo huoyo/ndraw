@@ -45,7 +45,11 @@
                             nodes[i]['x'] = formJX / form.length;
                             nodes[i]['y'] = nodes[i - 1]['y'] + 150;
                         } else {
-                            nodes[i]['x'] = nodes[i - 1]['x'] + nodes[i - 1]['data'][0]['name'].length * 10.5;
+                            let xOfferset =  (nodes[i - 1].hasOwnProperty('data')==true?nodes[i - 1]['data'][0]['name'].length:nodes[i - 1]['title']['name'].length)*10.5;
+                            if (xOfferset!==xOfferset || xOfferset<100) {
+                                xOfferset = 150
+                            }
+                            nodes[i]['x'] = nodes[i - 1]['x'] +xOfferset;
                             nodes[i]['y'] = formJY / form.length;
                         }
                     } else {
@@ -53,7 +57,11 @@
                             nodes[i]['x'] = nodes[i - 1]['x'];
                             nodes[i]['y'] = nodes[i - 1]['y'] + 150;
                         } else {
-                            nodes[i]['x'] = nodes[i - 1]['x'] + nodes[i - 1]['data'][0]['name'].length * 10.5;
+                             let xOfferset =  (nodes[i - 1].hasOwnProperty('data')==true?nodes[i - 1]['data'][0]['name'].length:nodes[i - 1]['title']['name'].length) *10.5;
+                               if (xOfferset!==xOfferset || xOfferset<100) {
+                                xOfferset = 150
+                            }
+                            nodes[i]['x'] = nodes[i - 1]['x'] + xOfferset
                             nodes[i]['y'] = nodes[i - 1]['y'];
                         }
                     }

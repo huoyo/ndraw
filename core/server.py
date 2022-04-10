@@ -10,6 +10,7 @@ from core import template_html
 from core import template_js
 from core.constant import Flow
 from core.constant import Theme
+from draw.graph import Graph
 
 logging.basicConfig(level=logging.INFO)
 try:
@@ -76,13 +77,39 @@ def _generate_nodes_data(node_name, res, theme=Theme.DEFAULT):
         'name'] + '","title":{"name":"' + res['class'] + '","style":"' + style['title'] + '"},"data":['
     node_text_end = ']}\n'
     node_text_mid = []
-    for key in res.keys():
+    for i,key in enumerate(res.keys()):
         value = res[key]
         if key not in ['name', 'class', 'input'] and value is not None:
-            text = '{"name":"' + key + '：' + (value if isinstance(value, str) else str(value)) + '","style":"' + style[
-                'element'] + '"},'
+
+            text = '{"name":"' + key + '：' + (value if isinstance(value, str) else str(value)) + '","style":"' + \
+                       style['element'] + '"},'
             node_text_mid.append(text)
     return node_text_start + ''.join(node_text_mid) + node_text_end
+
+def _generate_graph_nodes_data(node_name, res, theme=Theme.DEFAULT):
+    style = _get_style(theme)
+    if res.from_id is None:
+        node_text_from = ''
+    else:
+        node_text_from = '"from":"' + res.from_id+ '",'
+
+    node_text_start = ' let ' + node_name + '= {"style":"' + style['node'] + '", ' + node_text_from + ' "id":"' + res.id + '","title":{"name":"' + res.name + '","style":"' + style['title'] + '"}'
+    data_pre = ''
+    data_suf = ''
+    node_text_end = '}\n'
+    node_text_mid = []
+    if res.data is not None and len(res.data)>0:
+        data_pre = ',"data":['
+        data_suf = ']'
+        keys_len = len(res.data)
+        for j,value in enumerate(res.data):
+            if j==keys_len-1:
+                text = '{"name":"' + value + '","style":"' + style['element'] + ';border-bottom:none"},'
+            else:
+                text = '{"name":"' + value + '","style":"' + style[
+                    'element'] + '"},'
+            node_text_mid.append(text)
+    return node_text_start + data_pre+''.join(node_text_mid) +data_suf+ node_text_end
 
 
 def server(model, host='localhost', port=9999, flow="horizontal", theme=Theme.DEFAULT):
@@ -113,6 +140,24 @@ def server(model, host='localhost', port=9999, flow="horizontal", theme=Theme.DE
 
     server = HTTPServer((host, port), Resquest)
     server.serve_forever()
+
+
+def render_graph(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT):
+    nodes_text = []
+    nodes = []
+    for i,node in enumerate(model.nodes):
+        node_name = f'graphnode{i}'
+        nodes_text.append(_generate_graph_nodes_data(node_name, node, theme=theme))
+        nodes.append(node_name)
+    html = template_html \
+        .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
+        .replace("templateJs", template_js) \
+        .replace("nodesText", ';'.join(nodes_text)) \
+        .replace("nodesList", str(nodes).replace('\'', ''))
+    if out_file is not None and out_file.endswith(".html"):
+        with open(out_file, 'w', encoding='utf-8') as file_w:
+            file_w.write(html)
+    return html
 
 
 def render(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT):
@@ -157,5 +202,12 @@ def render(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT)
             except Exception as e:
                 logging.error("invalid model path")
                 raise e
+        elif isinstance(model, Graph):
+            return render_graph(model,flow=flow,theme=theme,out_file=out_file)
+        else:
+            logging.error("invalid model!")
+    else:
+        if isinstance(model, Graph):
+          return render_graph(model,flow=flow,theme=theme,out_file=out_file)
         else:
             logging.error("invalid model!")
