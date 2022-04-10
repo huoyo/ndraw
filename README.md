@@ -6,7 +6,7 @@
     <img src='https://shields.io/badge/version-1.0.7-green.svg'>
     <img src='https://shields.io/badge/dependencies-tensorflow/metricflow.js-blue.svg'>
     <img src='https://shields.io/badge/author-Chang Zhang-dbab09.svg'>
-    <h4>ndraw是一个简单的神经网络可视化工具,目前支持Tensorflow2.0+模型可视化</h4>
+    <h4>ndraw是一个简单的神经网络可视化以及自定义网络图工具,目前支持Tensorflow2.0+模型可视化</h4>
 </div>
 
 
