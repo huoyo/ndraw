@@ -28,9 +28,9 @@ python setup.py install
 ```
 
 
-## 使用
+## TF模型可视化
 
-> 可以参考test.py
+> 可以参考testTFmodel.py
 
 ### 1、pb模型可视化
 ```
@@ -126,6 +126,11 @@ ndraw.server("model.h5",theme=ndraw.PURPLE_WHITE)
 :param port: 服务端口可自定义
 :param flow: 布局方式：vertical and horizontal
 ```
+
+## 自定义画图
+
+6、PURPLE_WHITE
+
 
 ## 参考图
 
