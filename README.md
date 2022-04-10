@@ -6,7 +6,7 @@
     <img src='https://shields.io/badge/version-1.0.7-green.svg'>
     <img src='https://shields.io/badge/dependencies-tensorflow/metricflow.js-blue.svg'>
     <img src='https://shields.io/badge/author-Chang Zhang-dbab09.svg'>
-    <h4>ndraw是一个简单的神经网络可视化工具,目前支持Tensorflow2.0+模型可视化</h4>
+    <h4>ndraw是一个简单的神经网络可视化以及自定义网络图工具,目前支持Tensorflow2.0+模型可视化</h4>
 </div>
 
 
@@ -119,7 +119,7 @@ ndraw.server("model.h5",theme=ndraw.PURPLE_WHITE)
 ```
 ![输入图片说明](image/purple.png)
 
-### 7、其他参数
+### 6、其他参数
 
 ```
 :param host: 服务地址 可自定义
@@ -129,7 +129,100 @@ ndraw.server("model.h5",theme=ndraw.PURPLE_WHITE)
 
 ## 自定义画图
 
-6、PURPLE_WHITE
+### 1、简单直线流程
+```python
+# -*- encoding: utf-8 -*-
+import ndraw
+graph = ndraw.AutoGraph()
+graphs = graph.create("开始").to("过程1").to("过程2").to("过程3").to("过程4").to("结束")
+ndraw.server(graphs,theme=ndraw.BLUE_WHITE)
+```
+
+![输入图片说明](image/auto-sim.png)
+
+### 2、添加元素信息
+
+> Node
+
+```python
+# -*- encoding: utf-8 -*-
+import ndraw
+from ndraw import Node
+
+graph = ndraw.AutoGraph()
+graphs = graph.create("开始")\
+    .to(Node("过程1",["1.xxx","2.xxx"]))\
+    .to(Node("过程2",["1.xxx","2.xxx"]))\
+    .to("结束")
+ndraw.server(graphs,theme=ndraw.DEFAULT,flow=ndraw.HORIZONTAL)
+```
+
+![输入图片说明](auto-node.png)
+
+### 3、定义单节点样式
+
+> theme
+
+```python
+# -*- encoding: utf-8 -*-
+import ndraw
+from ndraw import Node
+
+graph = ndraw.AutoGraph()
+graphs = graph.create(Node("开始",theme=ndraw.GREEN_WHITE))\
+    .to(Node("过程1",data=["1.xxx","2.xxx"],theme=ndraw.DEEPGRAY_WHITE))\
+    .to(Node("过程2",data=["1.xxx","2.xxx"],theme=ndraw.BLUE_WHITE))\
+    .to(Node("结束",theme=ndraw.GREEN_WHITE))
+ndraw.server(graphs)
+```
+
+![输入图片说明](image/auto-theme.png)
+
+### 4、分流
+
+> tos()
+
+```python
+# -*- encoding: utf-8 -*-
+import ndraw
+from ndraw import Node
+
+graph = ndraw.AutoGraph()
+graphs = graph.create(Node("开始", theme=ndraw.GREEN_WHITE)) \
+    .tos([
+             Node("分流1", data=["1.xxx", "2.xxx"], theme=ndraw.DEEPGRAY_WHITE),
+             Node("分流2", data=["1.xxx", "2.xxx"], theme=ndraw.DEEPGRAY_WHITE),
+        ]) \
+    .to(Node("汇总", theme=ndraw.GREEN_WHITE))\
+            .tos([
+                Node("分流1", data=["1.xxx", "2.xxx"], theme=ndraw.DEEPGRAY_WHITE),
+                Node("分流2", data=["1.xxx", "2.xxx"], theme=ndraw.DEEPGRAY_WHITE),
+            ]) \
+    .to(Node("结束", theme=ndraw.GREEN_WHITE))
+ndraw.server(graphs)
+```
+
+![输入图片说明](auto-stream.png)
+
+### 5、汇总
+
+> creates()
+
+```python
+# -*- encoding: utf-8 -*-
+import ndraw
+from ndraw import Node
+
+graph = ndraw.AutoGraph()
+graphs = graph.creates([
+             Node("分流1", data=["1.xxx", "2.xxx"], theme=ndraw.DEEPGRAY_WHITE),
+             Node("分流2", data=["1.xxx", "2.xxx"], theme=ndraw.DEEPGRAY_WHITE),
+        ]) \
+             .to(Node("结束", theme=ndraw.GREEN_WHITE))
+ndraw.server(graphs)
+```
+
+![输入图片说明](image/auto-sum.png)
 
 
 ## 参考图
