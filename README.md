@@ -111,7 +111,15 @@ ndraw.server("model.h5",theme=ndraw.GREEN_WHITE)
 ```
 ![green_white](image/green_white.png)
 
-### 6、其他参数
+6、PURPLE_WHITE
+
+```python
+import ndraw
+ndraw.server("model.h5",theme=ndraw.PURPLE_WHITE)
+```
+![输入图片说明](image/purple.png)
+
+### 7、其他参数
 
 ```
 :param host: 服务地址 可自定义
