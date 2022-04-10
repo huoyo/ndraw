@@ -10,7 +10,7 @@ from core import template_html
 from core import template_js
 from core.constant import Flow
 from core.constant import Theme
-from draw.graph import Graph
+from draw.graph import AutoGraph
 
 logging.basicConfig(level=logging.INFO)
 try:
@@ -58,8 +58,21 @@ def _get_style(theme):
         res['title'] = "font-size:15px;background-color:#666666;color:white;"
         res['element'] = "font-size:13px;background-color:white;color:black;"
     elif theme == Theme.DEFAULT:
-        res['node'] = "border:2px solid #666666;background-color:white;"
-        res['title'] = "font-size:14px;background-color:#4b804b;color:black;"
+        res['node'] = "border:2px solid #4a555e;background-color:white;"
+        res['title'] = "font-size:15px;background-color:#4a555e;color:white;"
+        res['element'] = "font-size:13px;background-color:white;color:black;"
+    elif theme == Theme.DEEPGRAY_WHITE:
+        res['node'] = "border:2px solid #4a555e;background-color:white;"
+        res['title'] = "font-size:15px;background-color:#4a555e;color:white;"
+        res['element'] = "font-size:13px;background-color:white;color:black;"
+    elif theme == Theme.BLUE_WHITE:
+        res['node'] = "border:2px solid #0e0be8;background-color:white;"
+        res['title'] = "font-size:15px;background-color:#0e0be8;color:white;"
+        res['element'] = "font-size:13px;background-color:white;color:black;"
+
+    elif theme == Theme.PURPLE_WHITE:
+        res['node'] = "border:2px solid #ad0fe0;background-color:white;"
+        res['title'] = "font-size:15px;background-color:#ad0fe0;color:white;"
         res['element'] = "font-size:13px;background-color:white;color:black;"
     return res
 
@@ -90,8 +103,10 @@ def _generate_graph_nodes_data(node_name, res, theme=Theme.DEFAULT):
     style = _get_style(theme)
     if res.from_id is None:
         node_text_from = ''
-    else:
+    elif isinstance(res.from_id, str):
         node_text_from = '"from":"' + res.from_id+ '",'
+    elif isinstance(res.from_id,list):
+        node_text_from = '"from":' + str(res.from_id)+ ','
 
     node_text_start = ' let ' + node_name + '= {"style":"' + style['node'] + '", ' + node_text_from + ' "id":"' + res.id + '","title":{"name":"' + res.name + '","style":"' + style['title'] + '"}'
     data_pre = ''
@@ -147,7 +162,7 @@ def render_graph(model, out_file='model.html', flow="horizontal", theme=Theme.DE
     nodes = []
     for i,node in enumerate(model.nodes):
         node_name = f'graphnode{i}'
-        nodes_text.append(_generate_graph_nodes_data(node_name, node, theme=theme))
+        nodes_text.append(_generate_graph_nodes_data(node_name, node, theme=(theme if node.theme is None else node.theme)))
         nodes.append(node_name)
     html = template_html \
         .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
@@ -202,12 +217,12 @@ def render(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT)
             except Exception as e:
                 logging.error("invalid model path")
                 raise e
-        elif isinstance(model, Graph):
+        elif isinstance(model, AutoGraph):
             return render_graph(model,flow=flow,theme=theme,out_file=out_file)
         else:
             logging.error("invalid model!")
     else:
-        if isinstance(model, Graph):
+        if isinstance(model, AutoGraph):
           return render_graph(model,flow=flow,theme=theme,out_file=out_file)
         else:
             logging.error("invalid model!")
