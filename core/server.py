@@ -78,6 +78,34 @@ def _get_style(theme):
         res['element'] = "font-size:13px;background-color:white;color:black;"
     return res
 
+def _update_style(node_data,style):
+    res ={}
+    res['node'] = "border:2px solid border_color;background-color:data_color;"
+    res['title'] = "font-size:15px;background-color:title_color;color:white;"
+    res['element'] = "font-size:13px;background-color:data_color;color:black;"
+    n  = 0
+    if node_data.border_color is not None:
+        n+=1
+        res['node'] = res['node'].replace('border_color',node_data.border_color)
+
+    if node_data.title_color is not None:
+        n += 1
+        res['title'] = res['title'].replace('title_color', node_data.title_color)
+
+    if node_data.data_color is not None:
+        n += 1
+        res['node'] = res['node'].replace('data_color', node_data.data_color)
+        res['element'] = res['element'].replace('data_color', node_data.data_color)
+
+
+    if n==0:
+        return style
+
+    res['node'] = res['node'].replace('border_color', '#4a555e').replace('data_color', 'white')
+    res['title'] = res['title'].replace('title_color', '#4a555e')
+    res['element'] = res['element'].replace('data_color', 'white')
+    return res
+
 
 def _generate_nodes_data(node_name, res, theme=Theme.DEFAULT):
     style = _get_style(theme)
@@ -103,6 +131,7 @@ def _generate_nodes_data(node_name, res, theme=Theme.DEFAULT):
 
 def _generate_graph_nodes_data(node_name, res, theme=Theme.DEFAULT,is_auto=True):
     style = _get_style(theme)
+    style = _update_style(res,style)
     if res.from_id is None:
         node_text_from = ''
     elif isinstance(res.from_id, str):

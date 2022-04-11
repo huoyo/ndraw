@@ -21,6 +21,9 @@ class AutoGraph(object):
         self.theme = None
         self.x = 0
         self.y = 0
+        self.border_color = None
+        self.title_color = None
+        self.data_color = None
 
     def add_node(self,node_data, data=[]):
         node = AutoGraph()
@@ -92,12 +95,30 @@ class AutoGraph(object):
             node.theme = node_data.theme
             node.x = node_data.x
             node.y = node_data.y
+            node.border_color = node_data.border_color
+            node.title_color = node_data.title_color
+            node.data_color = node_data.data_color
         elif isinstance(node_data, dict):
             node.name = node_data['name']
-            node.data = node_data['data']
-            node.theme = node_data['theme']
-            node.x = node_data['x']
-            node.y = node_data['y']
+            if 'data' in node_data.keys():
+                node.data = node_data['data']
+
+            if 'theme' in node_data.keys():
+                node.theme = node_data['theme']
+
+            if 'x' in node_data.keys():
+                node.x = node_data['x']
+            if 'y' in node_data.keys():
+                node.y = node_data['y']
+
+            if 'border_color' in node_data.keys():
+                node.border_color = node_data['border_color']
+
+            if 'title_color' in node_data.keys():
+                node.title_color = node_data['title_color']
+
+            if 'data_color' in node_data.keys():
+                node.data_color = node_data['data_color']
 
         return node
 
@@ -118,6 +139,9 @@ class StableGraph(object):
         self.theme = None
         self.x = 0
         self.y = 0
+        self.border_color = None
+        self.title_color = None
+        self.data_color = None
 
     def add_node(self,node_data, data=[]):
         node = StableGraph()
@@ -150,6 +174,10 @@ class StableGraph(object):
             node.theme = node_data.theme
             node.x = node_data.x
             node.y = node_data.y
+            node.border_color = node_data.border_color
+            node.title_color = node_data.title_color
+            node.data_color = node_data.data_color
+
         elif isinstance(node_data, dict):
             node.name = node_data['name']
             if 'data' in node_data.keys():
@@ -162,6 +190,15 @@ class StableGraph(object):
                 node.x = node_data['x']
             if 'y' in node_data.keys():
                 node.y = node_data['y']
+
+            if 'border_color' in node_data.keys():
+                node.border_color = node_data['border_color']
+
+            if 'title_color' in node_data.keys():
+                node.title_color = node_data['title_color']
+
+            if 'data_color' in node_data.keys():
+                node.data_color = node_data['data_color']
 
         return node
 
