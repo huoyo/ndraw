@@ -13,6 +13,7 @@ from core.constant import Flow
 from core.constant import Theme
 from draw.graph import AutoGraph
 from draw.graph import StableGraph
+from draw.graph import Graph
 
 logging.basicConfig(level=logging.INFO)
 try:
@@ -41,6 +42,25 @@ def _parse_layer(layer):
         "units": layer.units if hasattr(layer, 'units') else None,
         "rate": layer.rate if hasattr(layer, 'rate') else None,
     }
+    if 'input' in  res['name'].lower():
+        res['border_color'] = 'green'
+        res['title_color'] = 'green'
+        res['data_color'] = 'white'
+
+    elif 'concatenate' in res['name'].lower():
+        res['border_color'] = 'blue'
+        res['title_color'] = 'blue'
+        res['data_color'] = 'white'
+
+    elif 'conv' in res['name'].lower():
+        res['border_color'] = '#327355'
+        res['title_color'] = '#327355'
+        res['data_color'] = 'white'
+    else:
+        res['border_color'] = None
+        res['title_color'] = None
+        res['data_color'] = None
+
     return res
 
 
@@ -76,6 +96,15 @@ def _get_style(theme):
         res['node'] = "border:2px solid #ad0fe0;background-color:white;"
         res['title'] = "font-size:15px;background-color:#ad0fe0;color:white;"
         res['element'] = "font-size:13px;background-color:white;color:black;"
+    elif theme == Theme.DEEPGREEN_WHITE:
+        res['node'] = "border:2px solid #327355;background-color:white;"
+        res['title'] = "font-size:15px;background-color:#327355;color:white;"
+        res['element'] = "font-size:13px;background-color:white;color:black;"
+    elif theme == Theme.RED_WHITE:
+        res['node'] = "border:2px solid #bf1a31;background-color:white;"
+        res['title'] = "font-size:15px;background-color:#bf1a31;color:white;"
+        res['element'] = "font-size:13px;background-color:white;color:black;"
+
     return res
 
 def _update_style(node_data,style):
@@ -84,19 +113,32 @@ def _update_style(node_data,style):
     res['title'] = "font-size:15px;background-color:title_color;color:white;"
     res['element'] = "font-size:13px;background-color:data_color;color:black;"
     n  = 0
-    if node_data.border_color is not None:
-        n+=1
-        res['node'] = res['node'].replace('border_color',node_data.border_color)
+    if isinstance(node_data,Graph):
+        if  node_data.border_color is not None:
+            n+=1
+            res['node'] = res['node'].replace('border_color',node_data.border_color)
 
-    if node_data.title_color is not None:
-        n += 1
-        res['title'] = res['title'].replace('title_color', node_data.title_color)
+        if node_data.title_color is not None:
+            n += 1
+            res['title'] = res['title'].replace('title_color', node_data.title_color)
 
-    if node_data.data_color is not None:
-        n += 1
-        res['node'] = res['node'].replace('data_color', node_data.data_color)
-        res['element'] = res['element'].replace('data_color', node_data.data_color)
+        if node_data.data_color is not None:
+            n += 1
+            res['node'] = res['node'].replace('data_color', node_data.data_color)
+            res['element'] = res['element'].replace('data_color', node_data.data_color)
+    elif isinstance(node_data,dict):
+        if node_data['border_color'] is not None:
+            n += 1
+            res['node'] = res['node'].replace('border_color', node_data['border_color'])
 
+        if node_data['title_color'] is not None:
+            n += 1
+            res['title'] = res['title'].replace('title_color', node_data['title_color'] )
+
+        if node_data['data_color'] is not None:
+            n += 1
+            res['node'] = res['node'].replace('data_color', node_data['data_color'])
+            res['element'] = res['element'].replace('data_color', node_data['data_color'])
 
     if n==0:
         return style
@@ -109,6 +151,7 @@ def _update_style(node_data,style):
 
 def _generate_nodes_data(node_name, res, theme=Theme.DEFAULT):
     style = _get_style(theme)
+    style = _update_style(res, style)
     if len(res['input']) == 0:
         node_text_from = ''
     elif len(res['input']) == 1:

@@ -13,3 +13,5 @@ class Theme(Enum):
     DEEPGRAY_WHITE = "deepgray_white"
     BLUE_WHITE = "blue_white"
     PURPLE_WHITE = "purle_white"
+    DEEPGREEN_WHITE = "deepgreen_white"
+    RED_WHITE = "red_white"

@@ -48,9 +48,44 @@ def model3():
     model.build(input_shape=(None, 100))
     return model
 
+def model4():
+    input = tf.keras.layers.Input(shape=(128, 192, 3))
+    x = tf.keras.layers.Permute((2, 1,3), input_shape=(128, 192, 3))(input)
+
+    x = tf.keras.layers.Conv2D(32, 1, padding='same', activation='relu')(x)
+    x = tf.keras.layers.MaxPooling2D()(x) #96x64
+
+    x = tf.keras.layers.Conv2D(64, 1, padding='same', activation='relu')(x)
+    x = tf.keras.layers.MaxPooling2D()(x) #48x32
+
+    x = tf.keras.layers.BatchNormalization()(x) #48x32
+
+    x = tf.keras.layers.Conv2D(128, 3, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv2D(128, 3, padding='same', activation='relu')(x)
+    x = tf.keras.layers.MaxPooling2D()(x) #24x16
+
+    x = tf.keras.layers.BatchNormalization()(x)  # 48x32
+
+    x = tf.keras.layers.Conv2D(128, 3, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv2D(128, 3, padding='same', activation='relu')(x)
+    x = tf.keras.layers.MaxPooling2D()(x)#12x8
+    x = tf.keras.layers.BatchNormalization()(x)  # 48x32
+    x = tf.keras.layers.Conv2D(256, 3, padding='same', activation='relu')(x)
+    x = tf.keras.layers.Conv2D(256, 3, padding='same', activation='relu')(x)
+    x = tf.keras.layers.MaxPooling2D()(x)#6x4
+    x = tf.keras.layers.BatchNormalization()(x)  # 48x32
+
+    x = tf.keras.layers.Reshape((24,256))(x)
+
+    x = tf.keras.layers.LSTM(256)(x)
+    x = tf.keras.layers.RepeatVector(6)(x)
+    x = tf.keras.layers.LSTM(256,return_sequences=True)(x)
+    x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(37, activation='softmax'))(x)
+    model = tf.keras.Model(inputs=input, outputs=x)
+    return model
 import ndraw
 #该方式会在本地生成一个model.html的文件  直接浏览器打开即可
 # ndraw.render(model2(),theme=ndraw.BLACK_WHITE)
 
 # 该方式会启动一个web服务  本地9999端口访问
-ndraw.server(model(),theme=ndraw.DEFAULT,flow=ndraw.HORIZONTAL)
+ndraw.server(model4(),theme=ndraw.DEFAULT,flow=ndraw.HORIZONTAL)
