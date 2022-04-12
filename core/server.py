@@ -214,6 +214,7 @@ def render_graph(model, out_file='model.html', flow="horizontal", theme=Theme.DE
         for j, link in enumerate(model.links):
             link_ids.append([link[0].id, link[1].id])
         html = stable_template_html \
+            .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
             .replace("templateJs", template_js) \
             .replace("nodesText", ';'.join(nodes_text)) \
             .replace("nodesList", str(nodes).replace('\'', ''))\

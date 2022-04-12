@@ -35,12 +35,13 @@
             nodesMap[nodes[0]['id']] = nodes[0]
             nodeXysMap[nodes[0]['id']] = [nodes[0]['x'], nodes[0]['y']]
             for (let i = 1; i < nodes.length; i++) {
+                 nodes[i]['to'] = [];
                 let id = nodes[i]['id'];
                 if (nodes[i].hasOwnProperty("from") == true && nodes[i]['from'] != null) {
                     let form = nodes[i]['from'];
                     if (form instanceof Array) {
                        for (let fi = 0; fi < form.length; fi++) {
-                           if (nodesMap[form[fi]]['to'].indexOf(nodes[i].id)==-1) {
+                           if (nodesMap[form[fi]]!=undefined && nodesMap[form[fi]].hasOwnProperty("to")==true && nodesMap[form[fi]]['to'].indexOf(nodes[i].id)==-1) {
                               nodesMap[form[fi]]['to'].push(nodes[i].id);
                            }
                        }
@@ -100,7 +101,6 @@
                     }
                 }
                 nodeXysMap[id] = [nodes[i]['x'], nodes[i]['y']];
-                nodes[i]['to'] = []
                 nodesMap[id] = nodes[i];
 
             }
