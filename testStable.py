@@ -1,6 +1,6 @@
 
 import ndraw
-g = ndraw.StableGraph(name_unique=True)
+g = ndraw.StableGraph(name_unique=False)
 
 node1 = g.add_node(ndraw.Node(name='节点1',x=10,y=10))
 node2 = g.add_node(ndraw.Node(name='节点1',data =['111111111','22222222'],x=200,y=10))
