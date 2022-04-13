@@ -10,7 +10,7 @@ from core import auto_template_html
 from core import stable_template_html
 from core import template_js
 from core.constant import Flow
-from core.constant import Theme
+from core.theme import *
 from draw.graph import AutoGraph
 from draw.graph import StableGraph
 from draw.graph import Graph
@@ -65,45 +65,11 @@ def _parse_layer(layer):
 
 
 def _get_style(theme):
-    theme = theme if isinstance(theme, Theme) else Theme(theme)
+    theme = theme if isinstance(theme, Theme) else Theme()
     res = {}
-    if theme == Theme.GREEN_WHITE:
-        res['node'] = "background-color:whitesmoke"
-        res['title'] = "font-size:14px;background-color:#4b804b;"
-        res['element'] = "font-size:13px;background-color:whitesmoke;color:black;"
-    elif theme == Theme.BLACK_WHITE:
-        res['node'] = "border:2px solid black;background-color:white;"
-        res['title'] = "font-size:15px;background-color:black;color:white;"
-        res['element'] = "font-size:13px;background-color:white;color:black;"
-    elif theme == Theme.LIGHTBLACK_WHITE:
-        res['node'] = "border:2px solid black;background-color:white;"
-        res['title'] = "font-size:15px;background-color:#666666;color:white;"
-        res['element'] = "font-size:13px;background-color:white;color:black;"
-    elif theme == Theme.DEFAULT:
-        res['node'] = "border:2px solid #4a555e;background-color:white;"
-        res['title'] = "font-size:15px;background-color:#4a555e;color:white;"
-        res['element'] = "font-size:13px;background-color:white;color:black;"
-    elif theme == Theme.DEEPGRAY_WHITE:
-        res['node'] = "border:2px solid #4a555e;background-color:white;"
-        res['title'] = "font-size:15px;background-color:#4a555e;color:white;"
-        res['element'] = "font-size:13px;background-color:white;color:black;"
-    elif theme == Theme.BLUE_WHITE:
-        res['node'] = "border:2px solid #0e0be8;background-color:white;"
-        res['title'] = "font-size:15px;background-color:#0e0be8;color:white;"
-        res['element'] = "font-size:13px;background-color:white;color:black;"
-
-    elif theme == Theme.PURPLE_WHITE:
-        res['node'] = "border:2px solid #ad0fe0;background-color:white;"
-        res['title'] = "font-size:15px;background-color:#ad0fe0;color:white;"
-        res['element'] = "font-size:13px;background-color:white;color:black;"
-    elif theme == Theme.DEEPGREEN_WHITE:
-        res['node'] = "border:2px solid #327355;background-color:white;"
-        res['title'] = "font-size:15px;background-color:#327355;color:white;"
-        res['element'] = "font-size:13px;background-color:white;color:black;"
-    elif theme == Theme.RED_WHITE:
-        res['node'] = "border:2px solid #bf1a31;background-color:white;"
-        res['title'] = "font-size:15px;background-color:#bf1a31;color:white;"
-        res['element'] = "font-size:13px;background-color:white;color:black;"
+    res['node'] = f"border:2px solid {theme.border_color};background-color:{theme.data_color};"
+    res['title'] = f"font-size:{theme.title_font_size};background-color:{theme.title_color};color:{theme.title_font_color};"
+    res['element'] = f"font-size:{theme.data_font_size};background-color:{theme.data_color};color:{theme.data_font_color};"
 
     return res
 
@@ -149,7 +115,7 @@ def _update_style(node_data,style):
     return res
 
 
-def _generate_nodes_data(node_name, res, theme=Theme.DEFAULT):
+def _generate_nodes_data(node_name, res, theme=Defualt):
     style = _get_style(theme)
     style = _update_style(res, style)
     if len(res['input']) == 0:
@@ -172,7 +138,7 @@ def _generate_nodes_data(node_name, res, theme=Theme.DEFAULT):
             node_text_mid.append(text)
     return node_text_start + ''.join(node_text_mid) + node_text_end
 
-def _generate_graph_nodes_data(node_name, res, theme=Theme.DEFAULT,is_auto=True):
+def _generate_graph_nodes_data(node_name, res, theme=Defualt,is_auto=True):
     style = _get_style(theme)
     style = _update_style(res,style)
     if res.from_id is None:
@@ -208,7 +174,7 @@ def _generate_graph_nodes_data(node_name, res, theme=Theme.DEFAULT,is_auto=True)
     return node_text_start + data_pre+''.join(node_text_mid) +data_suf+ node_text_end
 
 
-def server(model, host='localhost', port=9999, flow="horizontal", theme=Theme.DEFAULT):
+def server(model, host='localhost', port=9999, flow="horizontal", theme=Defualt):
     '''
     start a webserver to show model structure
     :param model: a model object such as tf.keras.Sequential/tf.keras.Model,
@@ -238,7 +204,7 @@ def server(model, host='localhost', port=9999, flow="horizontal", theme=Theme.DE
     server.serve_forever()
 
 
-def render_graph(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT,template_type='auto'):
+def render_graph(model, out_file='model.html', flow="horizontal", theme=Defualt,template_type='auto'):
     nodes_text = []
     nodes = []
     link_ids = []
@@ -269,7 +235,7 @@ def render_graph(model, out_file='model.html', flow="horizontal", theme=Theme.DE
     return html
 
 
-def render(model, out_file='model.html', flow="horizontal", theme=Theme.DEFAULT):
+def render(model, out_file='model.html', flow="horizontal", theme=Defualt):
     '''
     start a webserver to show model structure
     :param model: a model object such as tf.keras.Sequential/tf.keras.Model,
