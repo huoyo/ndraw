@@ -100,9 +100,9 @@
                                     downList = nodesMap[p['id']]['to'].slice(moveNum + 1)
                                     down(downList, nodes);
                                 }
-                            }else if (childLen==2){
-                                 up([nodesMap[p['id']]['to'][0]], nodes);
-                                 down([nodesMap[p['id']]['to'][1]], nodes);
+                            } else if (childLen == 2) {
+                                up([nodesMap[p['id']]['to'][0]], nodes);
+                                down([nodesMap[p['id']]['to'][1]], nodes);
                             }
 
                         }
@@ -135,18 +135,19 @@
             for (let j = 0; j < list.length; j++) {
                 for (let i = 0; i < nodes.length; i++) {
                     if (list[j] == nodes[i]['id']) {
-                        nodes[i]['y'] = nodes[i]['y'] - (25*(nodes[i].hasOwnProperty("data")?nodes[i]['data'].length:3))
+                        nodes[i]['y'] = nodes[i]['y'] - ((j+1)*25 * (nodes[i].hasOwnProperty("data") ? nodes[i]['data'].length : 3))
                         break
                     }
                 }
             }
         }
 
+
         function down(list, nodes) {
             for (let j = 0; j < list.length; j++) {
                 for (let i = 0; i < nodes.length; i++) {
                     if (list[j] == nodes[i]['id']) {
-                        nodes[i]['y'] = nodes[i]['y'] + (25*(nodes[i].hasOwnProperty("data")?nodes[i]['data'].length:3))
+                        nodes[i]['y'] = nodes[i]['y'] + (25 * (nodes[i].hasOwnProperty("data") ? nodes[i]['data'].length : 3))
                         break
                     }
                 }
