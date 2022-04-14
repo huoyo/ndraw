@@ -20,7 +20,8 @@ except Exception as e:
     logging.warning(
         "failed to import tensorflow,please install tensorflow>=2.0 if you want to show model constructure of tensorflow! Of course,maybe you need ignore it when you want to show other model constructure.")
 
-graph_parser = GraphParser()
+auto_graph_parser = AutoGraphParser()
+stable_graph_parser = StableGraphParser()
 tfmodel_parser = TFmodelParser()
 
 
@@ -71,9 +72,9 @@ def render(model, out_file='model.html', flow="horizontal", theme=Defualt()):
     :return: html
     '''
     if isinstance(model, AutoGraph):
-        return graph_parser(model, flow=flow, theme=theme, out_file=out_file)
+        return auto_graph_parser(model, flow=flow, theme=theme, out_file=out_file)
     elif isinstance(model, StableGraph):
-        return graph_parser(model, flow=flow, theme=theme, out_file=out_file, template_type='stable')
+        return stable_graph_parser(model, flow=flow, theme=theme, out_file=out_file)
     elif tf:
         if isinstance(model, tf.keras.Sequential) or isinstance(model, tf.keras.Model):
             return tfmodel_parser(model,out_file=out_file,flow=flow,theme=theme)

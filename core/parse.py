@@ -11,16 +11,16 @@ from draw.graph import Graph
 
 class CommParser(object):
 
-    def __call__(self, model, out_file='model.html', flow="horizontal", theme=Defualt(), template_type='auto'):
-        return self.render(model, out_file=out_file, theme=theme, flow=flow, template_type=template_type)
+    def __call__(self, model, out_file='model.html', flow="horizontal", theme=Defualt()):
+        return self.render(model, out_file=out_file, theme=theme, flow=flow)
 
-    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt(), template_type='auto'):
+    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt()):
         pass
 
     def parse_layer(self, layer):
         pass
 
-    def generate_node_data(self, node_name, res, theme=Defualt(), is_auto=True):
+    def generate_node_data(self, node_name, res, theme=Defualt()):
         pass
 
     def get_style(self, theme):
@@ -75,7 +75,7 @@ class CommParser(object):
 
 class TFmodelParser(CommParser):
 
-    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt,template_type='auto'):
+    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt):
         nodes_text = []
         nodes = []
         for i, layer in enumerate(model.layers):
@@ -160,41 +160,28 @@ class TFmodelParser(CommParser):
         return node_text_start + ''.join(node_text_mid) + node_text_end
 
 
-class GraphParser(CommParser):
+class AutoGraphParser(CommParser):
 
-    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt, template_type='auto'):
+    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt()):
         nodes_text = []
         nodes = []
-        link_ids = []
-
         for i, node in enumerate(model.nodes):
             node_name = f'graphnode{i}'
             nodes_text.append(
-                self.generate_node_data(node_name, node, theme=(theme if node.theme is None else node.theme),
-                                        is_auto=True if template_type == 'auto' else False))
+                self.generate_node_data(node_name, node, theme=(theme if node.theme is None else node.theme)))
             nodes.append(node_name)
-        if template_type == 'auto':
-            html = auto_template_html \
-                .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
-                .replace("templateJs", template_js) \
-                .replace("nodesText", ';'.join(nodes_text)) \
-                .replace("nodesList", str(nodes).replace('\'', ''))
-        else:
-            for j, link in enumerate(model.links):
-                link_ids.append([link[0].id, link[1].id])
-            html = stable_template_html \
-                .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
-                .replace("templateJs", template_js) \
-                .replace("nodesText", ';'.join(nodes_text)) \
-                .replace("nodesList", str(nodes).replace('\'', '')) \
-                .replace("linksList", str(link_ids))
+        html = auto_template_html \
+            .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
+            .replace("templateJs", template_js) \
+            .replace("nodesText", ';'.join(nodes_text)) \
+            .replace("nodesList", str(nodes).replace('\'', ''))
 
         if out_file is not None and out_file.endswith(".html"):
             with open(out_file, 'w', encoding='utf-8') as file_w:
                 file_w.write(html)
         return html
 
-    def generate_node_data(self, node_name, res, theme=Defualt, is_auto=True):
+    def generate_node_data(self, node_name, res, theme=Defualt):
         style = self.get_style(theme)
         style = self.update_style(res, style)
         if res.from_id is None:
@@ -204,14 +191,70 @@ class GraphParser(CommParser):
         elif isinstance(res.from_id, list):
             node_text_from = '"from":' + str(res.from_id) + ','
 
-        xy = ''
-        if hasattr(res, 'x') and is_auto == False:
+        node_text_start = ' let ' + node_name + '= {' + '"style":"' + style[
+            'node'] + '", ' + node_text_from + ' "id":"' + res.id + '","title":{"name":"' + res.name + '","style":"' + \
+                          style['title'] + '"}'
+        data_pre = ''
+        data_suf = ''
+        node_text_end = '}\n'
+        node_text_mid = []
+        if res.data is not None and len(res.data) > 0:
+            data_pre = ',"data":['
+            data_suf = ']'
+            keys_len = len(res.data)
+            for j, value in enumerate(res.data):
+                if j == keys_len - 1:
+                    text = '{"name":"' + value + '","style":"' + style['element'] + ';border-bottom:none"},'
+                else:
+                    text = '{"name":"' + value + '","style":"' + style[
+                        'element'] + '"},'
+                node_text_mid.append(text)
+        return node_text_start + data_pre + ''.join(node_text_mid) + data_suf + node_text_end
+
+class StableGraphParser(AutoGraphParser):
+
+    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt()):
+        nodes_text = []
+        nodes = []
+        link_ids = []
+
+        for i, node in enumerate(model.nodes):
+            node_name = f'graphnode{i}'
+            nodes_text.append(
+                self.generate_node_data(node_name, node, theme=(theme if node.theme is None else node.theme)))
+            nodes.append(node_name)
+
+        for j, link in enumerate(model.links):
+            link_ids.append([link[0].id, link[1].id])
+        html = stable_template_html \
+            .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
+            .replace("templateJs", template_js) \
+            .replace("nodesText", ';'.join(nodes_text)) \
+            .replace("nodesList", str(nodes).replace('\'', '')) \
+            .replace("linksList", str(link_ids))
+
+        if out_file is not None and out_file.endswith(".html"):
+            with open(out_file, 'w', encoding='utf-8') as file_w:
+                file_w.write(html)
+        return html
+
+    def generate_node_data(self, node_name, res, theme=Defualt):
+        style = self.get_style(theme)
+        style = self.update_style(res, style)
+        if res.from_id is None:
+            node_text_from = ''
+        elif isinstance(res.from_id, str):
+            node_text_from = '"from":"' + res.from_id + '",'
+        elif isinstance(res.from_id, list):
+            node_text_from = '"from":' + str(res.from_id) + ','
+
+        if hasattr(res, 'x') :
             node_text_from = '"x":' + str(res.x) + ','
 
-        if hasattr(res, 'y') and is_auto == False:
+        if hasattr(res, 'y') :
             node_text_from = node_text_from + '"y":' + str(res.y) + ','
 
-        node_text_start = ' let ' + node_name + '= {' + xy + '"style":"' + style[
+        node_text_start = ' let ' + node_name + '= {' + '"style":"' + style[
             'node'] + '", ' + node_text_from + ' "id":"' + res.id + '","title":{"name":"' + res.name + '","style":"' + \
                           style['title'] + '"}'
         data_pre = ''
