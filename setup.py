@@ -9,7 +9,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='ndraw',
-    version='1.1.1',
+    version='1.1.2',#未发布
     packages=find_packages(),
     author='Chang Zhang',
     author_email='1729913829@qq.com',

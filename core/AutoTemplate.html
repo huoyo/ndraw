@@ -85,25 +85,7 @@
                                 nodes[i]['x'] = parentXy[0] + xOfferset
                                 nodes[i]['y'] = parentXy[1];
                             }
-                            let p = findFrom(nodes[i], nodes, i)
-                            childLen = nodesMap[p['id']]['to'].length
-                            if (childLen > 2) {
-                                moveNum = childLen / 2;
-                                if (moveNum % 2 == 0) {
-                                    upList = nodesMap[p['id']]['to'].slice(0, moveNum);
-                                    up(upList, nodes);
-                                    downList = nodesMap[p['id']]['to'].slice(moveNum);
-                                    down(downList, nodes);
-                                } else {
-                                    upList = nodesMap[p['id']]['to'].slice(0, moveNum);
-                                    up(upList, nodes);
-                                    downList = nodesMap[p['id']]['to'].slice(moveNum + 1)
-                                    down(downList, nodes);
-                                }
-                            } else if (childLen == 2) {
-                                up([nodesMap[p['id']]['to'][0]], nodes);
-                                down([nodesMap[p['id']]['to'][1]], nodes);
-                            }
+
 
                         }
                     }
@@ -120,6 +102,35 @@
                 nodesMap[id] = nodes[i];
 
             }
+            for (let i = 1; i < nodes.length; i++) {
+                let p = findFrom(nodes[i], nodes, i)
+                if (p==undefined || p==null) {
+                    continue
+                }
+                if (!nodesMap[p['id']].hasOwnProperty('to')) {
+                    continue;
+                }
+                childLen = nodesMap[p['id']]['to'].length;
+                if (childLen > 2) {
+                    moveNum = childLen / 2;
+                    if (moveNum % 2 == 0) {
+                        upList = nodesMap[p['id']]['to'].slice(0, moveNum);
+                        up(upList, nodes);
+                        downList = nodesMap[p['id']]['to'].slice(moveNum);
+                        down(downList, nodes);
+                    } else {
+                        upList = nodesMap[p['id']]['to'].slice(0, moveNum);
+                        up(upList, nodes);
+                        downList = nodesMap[p['id']]['to'].slice(moveNum + 1)
+                        down(downList, nodes);
+                    }
+                } else if (childLen == 2) {
+                    up([nodesMap[p['id']]['to'][0]], nodes);
+                    down([nodesMap[p['id']]['to'][1]], nodes);
+                }
+            }
+
+
             let bodyWidth = nodes.length % 10;
             if (options['flow'] == 'vertical') {
                 document.getElementById("graph").setAttribute("height", 700 * bodyWidth + 500 + "px")
@@ -135,7 +146,7 @@
             for (let j = 0; j < list.length; j++) {
                 for (let i = 0; i < nodes.length; i++) {
                     if (list[j] == nodes[i]['id']) {
-                        nodes[i]['y'] = nodes[i]['y'] - ((j+1)*25 * (nodes[i].hasOwnProperty("data") ? nodes[i]['data'].length : 3))
+                        nodes[i]['y'] = nodes[i]['y'] - ((j + 1) * 25 * (nodes[i].hasOwnProperty("data") ? nodes[i]['data'].length : 3))
                         break
                     }
                 }
@@ -175,7 +186,7 @@
                 mx = (m1Xy[0] + m2Xy[0]) / 2;
                 my = (m1Xy[1] + m2Xy[1]) / 2;
             } else {
-                let m1Index = Math.ceil(form.length / 2) - 1;
+                let m1Index = Math.ceil(form.length / 2);
                 let m1Xy = nodesMap[form[m1Index]];
                 mx = m1Xy[0];
                 my = m1Xy[1];
