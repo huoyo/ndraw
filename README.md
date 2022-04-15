@@ -3,7 +3,7 @@
 ---
 
 <div >
-    <img src='https://shields.io/badge/version-1.0.10-green.svg'>
+    <img src='https://shields.io/badge/version-1.1.2-green.svg'>
     <img src='https://shields.io/badge/dependencies-tensorflow/metricflow.js-blue.svg'>
     <img src='https://shields.io/badge/author-Chang Zhang-dbab09.svg'>
     <h4>ndraw是一个简单的神经网络可视化以及自定义网络图工具,目前支持Tensorflow2.0+模型可视化</h4>
@@ -239,6 +239,34 @@ g.add_link((node1,node3))
 ndraw.server(g,theme=ndraw.DEFAULT)
 ```
 
+### 7、自定义主题
+
+```python
+# -*- encoding: utf-8 -*-
+import ndraw
+from ndraw import Node
+
+
+class Theme1(ndraw.Theme):
+    '''
+    自定义主题  继承ndraw.Theme即可
+    '''
+    # 边框颜色
+    border_color = 'red'
+    # 数据区域颜色
+    data_color = 'white'
+    # 标题区域颜色
+    title_color = '#181b16'
+    # 标题字体大小
+    title_font_size = '17px'
+    # 标题字体颜色
+    title_font_color = 'white'
+    #其他属性参考    ndraw.Theme 
+
+graph = ndraw.StableGraph()
+node1 = graph.add_node(Node("开始",x=10,y=10,theme=Theme1()))
+ndraw.server(graph)
+```
 
 ## 参考图
 
