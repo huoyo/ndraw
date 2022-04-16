@@ -136,6 +136,10 @@ import ndraw
 graph = ndraw.AutoGraph()
 graphs = graph.create("开始").to("过程1").to("过程2").to("过程3").to("过程4").to("结束")
 ndraw.server(graphs,theme=ndraw.BLUE_WHITE)
+
+# v1.1.3开始，可以不使用ndraw.server(),AutoGraph自带了server()和render()
+# graph.create("开始").to("过程1").to("过程2").to("过程3").to("过程4").to("结束").server()
+
 ```
 
 ![输入图片说明](image/auto-sim.png)
