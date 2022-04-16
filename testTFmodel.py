@@ -88,4 +88,4 @@ import ndraw
 # ndraw.render(model2(),theme=ndraw.BLACK_WHITE)
 
 # 该方式会启动一个web服务  本地9999端口访问
-ndraw.server(model2(),theme=ndraw.BlueWhite,flow=ndraw.VERTICAL)
+ndraw.server(model2(),theme=ndraw.BlueWhite,flow=ndraw.HORIZONTAL)

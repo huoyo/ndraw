@@ -186,7 +186,7 @@
                 mx = (m1Xy[0] + m2Xy[0]) / 2;
                 my = (m1Xy[1] + m2Xy[1]) / 2;
             } else {
-                let m1Index = Math.ceil(form.length / 2);
+                let m1Index = Math.floor(form.length / 2);
                 let m1Xy = nodesMap[form[m1Index]];
                 mx = m1Xy[0];
                 my = m1Xy[1];
