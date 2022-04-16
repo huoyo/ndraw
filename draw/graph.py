@@ -7,6 +7,8 @@
 '''
 import uuid
 from draw.node import Node
+from core import server
+from core.theme import *
 
 class Graph(object):
 
@@ -95,6 +97,14 @@ class Graph(object):
                 node.data_color = node_data['data_color']
 
         return node
+
+    def server(self, host='localhost', port=9999, flow="horizontal", theme=Defualt()):
+        server.server(self,host=host,port=port,flow=flow,theme=theme)
+
+    def render(self,out_file='model.html', flow="horizontal", theme=Defualt()):
+        return server.render(self,out_file=out_file,flow=flow,theme=theme)
+
+
 
 
 class AutoGraph(Graph):

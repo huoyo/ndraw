@@ -137,7 +137,7 @@ graph = ndraw.AutoGraph()
 graphs = graph.create("开始").to("过程1").to("过程2").to("过程3").to("过程4").to("结束")
 ndraw.server(graphs,theme=ndraw.BLUE_WHITE)
 
-# v1.1.3开始，可以不使用ndraw.server(),AutoGraph自带了server()和render()
+# v1.1.4开始，可以不使用ndraw.server(),AutoGraph自带了server()和render()
 # graph.create("开始").to("过程1").to("过程2").to("过程3").to("过程4").to("结束").server()
 
 ```
@@ -241,6 +241,8 @@ node3 = g.add_node(ndraw.Node(name='节点3',data =['111111111','22222222'],x=10
 g.add_link((node1,node2))
 g.add_link((node1,node3))
 ndraw.server(g,theme=ndraw.DEFAULT)
+# v1.1.4开始，可以不使用ndraw.server(),StableGraph()和render()
+# g.server()
 ```
 
 ### 7、自定义主题

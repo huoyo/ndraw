@@ -11,13 +11,14 @@ g = ndraw.AutoGraph(name_unique=False)
 #       ndraw.Node("第二1",data=["name:测试","color:hggg","color:hggg"])
 #       ])\
 start1= g.create("开始").to("开始2").to("开始3").to("开始4")
-start2= start1.to("开始2")
-start3= start1.to("开始3")
-start3_= start1.to("开始31")
-nodes4= start2.to("中间")
-nodes4= start3.to("中间")
-# nodes4_= start3_.to("中间")
+# start2= start1.to("开始2")
+# start3= start1.to("开始3")
+# start3_= start1.to("开始31")
+# nodes4= start2.to("中间")
+# nodes4= start3.to("中间")
+# # nodes4_= start3_.to("中间")
+# nodes4.server(theme=ndraw.BlueWhite)
 
 
 # 多类型创建  任意关系创建
-ndraw.server(nodes4,flow=ndraw.HORIZONTAL)
+ndraw.server(start1,flow=ndraw.HORIZONTAL)
