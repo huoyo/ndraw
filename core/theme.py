@@ -13,6 +13,16 @@ class Theme(object):
     data_font_size = '13px'
     data_font_color = 'black'
 
+    def __repr__(self):
+        return '{"border_color":"'+self.border_color+'"' \
+                         ',"title_color":"'+self.title_color+'"' \
+                         ',"data_color":"'+self.data_color+'"' \
+                       ',"title_font_size":"'+self.title_font_size+'"' \
+                       ',"title_font_color":"'+self.title_font_color+'"' \
+                     ',"data_font_size":"'+self.data_font_size+'"' \
+                       ',"data_font_color":"'+self.data_font_color+'"}'
+
+
 
 class Defualt(Theme):
     pass

@@ -20,7 +20,7 @@ def model():
     model.add(tf.keras.layers.BatchNormalization())
     model.add(tf.keras.layers.Dense(20))
     model.add(tf.keras.layers.Dense(2))
-    # model.add(tf.keras.layers.Softmax())
+    model.add(tf.keras.layers.Softmax())
     model.build(input_shape=(None, 28, 28, 3))
     return model
 
@@ -88,4 +88,4 @@ import ndraw
 # ndraw.render(model2(),theme=ndraw.BLACK_WHITE)
 
 # 该方式会启动一个web服务  本地9999端口访问
-ndraw.server(model2(),theme=ndraw.BlueWhite,flow=ndraw.HORIZONTAL)
+ndraw.server(model4(),theme=ndraw.Defualt,flow=ndraw.VERTICAL)

@@ -12,186 +12,93 @@
         window.onload = function () {
             let options = {
                 "flow": "flowValue",
-                'link-width-offset': -1,
+                'link-width-offset': 0,
                 'link-start-offsetx': 0,
-                'link-start-offsety': -3,
-                'link-end-offsety': -3,
+                'link-start-offsety': 0,
+                'link-end-offsety': 0,
                 'link-color': '#666666',
+                'node-distance-offsetx': nodeDistanceX,
+                'node-distance-offsety': nodeDistanceY,
             };
             let metricFlow = MetricFlow("graph", options);
             nodesText
             ;
             let nodes = nodesList;
             if (options['flow'] == 'vertical') {
-                nodes[0]['x'] = window.screen.width / 2 - 300;
+                nodes[0]['x'] = window.screen.width / 2 - 100;
                 nodes[0]['y'] = 10;
             } else {
                 nodes[0]['x'] = 10;
-                nodes[0]['y'] = window.screen.height / 2 - 300;
+                nodes[0]['y'] = window.screen.height / 2 - 100;
             }
-            nodeXysMap = new Map();
-            nodesMap = new Map();
-            nodes[0]['to'] = []
-            nodesMap[nodes[0]['id']] = nodes[0]
-            nodeXysMap[nodes[0]['id']] = [nodes[0]['x'], nodes[0]['y']]
+            nodes[0]['children'] = [];
+            let topList = [];
+            let relations = [];
             for (let i = 1; i < nodes.length; i++) {
-                nodes[i]['to'] = [];
-                let id = nodes[i]['id'];
-                if (nodes[i].hasOwnProperty("from") == true && nodes[i]['from'] != null) {
-                    let form = nodes[i]['from'];
-                    if (form instanceof Array) {
-                        for (let fi = 0; fi < form.length; fi++) {
-                            if (nodesMap[form[fi]] != undefined && nodesMap[form[fi]].hasOwnProperty("to") == true && nodesMap[form[fi]]['to'].indexOf(nodes[i].id) == -1) {
-                                nodesMap[form[fi]]['to'].push(nodes[i].id);
-                            }
-                        }
-                        let middleXy = getMiddleXy(form, nodeXysMap);
-                        let mx = middleXy[0];
-                        let my = middleXy[1];
-                        if (options['flow'] == 'vertical') {
-                            nodes[i]['x'] = mx;
-                            nodes[i]['y'] = nodes[i - 1]['y'] + 150;
-                        } else {
-                            let xOfferset = (nodes[i - 1].hasOwnProperty('data') == true ? nodes[i - 1]['data'][0]['name'].length : nodes[i - 1]['title']['name'].length) * 10.5;
-                            if (xOfferset !== xOfferset || xOfferset < 100) {
-                                xOfferset = 150
-                            }
-                            nodes[i]['x'] = nodes[i - 1]['x'] + xOfferset;
-                            nodes[i]['y'] = my
-                        }
-                    } else {
-                        if (nodesMap[form]['to'].indexOf(nodes[i].id) == -1) {
-                            nodesMap[form]['to'].push(nodes[i].id);
-                        }
-                        let parentXy = nodeXysMap[form];
-                        if (options['flow'] == 'vertical') {
-                            if (parentXy == undefined || parentXy == null) {
-                                nodes[i]['x'] = nodes[i - 1]['x'];
-                                nodes[i]['y'] = nodes[i - 1]['y'] + 150;
-                            } else {
-                                nodes[i]['x'] = parentXy[0];
-                                nodes[i]['y'] = parentXy[1] + 150;
-                            }
-
-                        } else {
-                            let xOfferset = (nodes[i - 1].hasOwnProperty('data') == true ? nodes[i - 1]['data'][0]['name'].length : nodes[i - 1]['title']['name'].length) * 10.5;
-                            if (xOfferset !== xOfferset || xOfferset < 100) {
-                                xOfferset = 150
-                            }
-                            if (parentXy == undefined || parentXy == null) {
-                                nodes[i]['x'] = nodes[i - 1]['x'] + xOfferset
-                                nodes[i]['y'] = nodes[i - 1]['y'];
-                            } else {
-                                nodes[i]['x'] = parentXy[0] + xOfferset
-                                nodes[i]['y'] = parentXy[1];
-                            }
-
-
-                        }
-                    }
-                } else {
+                let node = nodes[i];
+                node['children'] = [];
+                if (node.hasOwnProperty('from') == false || node['from'] == null) {
                     if (options['flow'] == 'vertical') {
-                        nodes[i]['x'] = nodes[i - 1]['x'] + 260;
-                        nodes[i]['y'] = nodes[i - 1]['y'];
+                        node['x'] = nodes[0]['x'] - 200;
+                        node['y'] = nodes[0]['y'] + 100 * i;
+                        topList.push(node);
                     } else {
-                        nodes[i]['x'] = nodes[i - 1]['x'];
-                        nodes[i]['y'] = nodes[i - 1]['y'] + 150;
+                        node['x'] = nodes[0]['x'] +200*i;
+                        node['y'] = nodes[0]['y'] -200;
+                        topList.push(node);
                     }
-                }
-                nodeXysMap[id] = [nodes[i]['x'], nodes[i]['y']];
-                nodesMap[id] = nodes[i];
-
-            }
-            for (let i = 1; i < nodes.length; i++) {
-                let p = findFrom(nodes[i], nodes, i)
-                if (p==undefined || p==null) {
-                    continue
-                }
-                if (!nodesMap[p['id']].hasOwnProperty('to')) {
                     continue;
                 }
-                childLen = nodesMap[p['id']]['to'].length;
-                if (childLen > 2) {
-                    moveNum = childLen / 2;
-                    if (moveNum % 2 == 0) {
-                        upList = nodesMap[p['id']]['to'].slice(0, moveNum);
-                        up(upList, nodes);
-                        downList = nodesMap[p['id']]['to'].slice(moveNum);
-                        down(downList, nodes);
-                    } else {
-                        upList = nodesMap[p['id']]['to'].slice(0, moveNum);
-                        up(upList, nodes);
-                        downList = nodesMap[p['id']]['to'].slice(moveNum + 1)
-                        down(downList, nodes);
+                let fromDatas = node['from'];
+                if (fromDatas instanceof Array) {
+                    for (let fi = 0; fi < fromDatas.length; fi++) {
+                        let fromIndex = findFromIndex(fromDatas[fi], nodes, i);
+                        nodes[fromIndex]['children'].push(node);
+                        relations.push([fromDatas[fi],node['id']]);
                     }
-                } else if (childLen == 2) {
-                    up([nodesMap[p['id']]['to'][0]], nodes);
-                    down([nodesMap[p['id']]['to'][1]], nodes);
+                } else {
+                    let fromIndex = findFromIndex(fromDatas, nodes, i);
+                    nodes[fromIndex]['children'].push(node);
+                     relations.push([fromDatas,node['id']]);
                 }
             }
-
 
             let bodyWidth = nodes.length * 10;
             if (options['flow'] == 'vertical') {
-                document.getElementById("graph").setAttribute("height", 700 * bodyWidth + 500 + "px")
-                document.getElementById("svgBack").setAttribute("height", 700 * bodyWidth + 500)
+                document.getElementById("graph").setAttribute("height", 200 * bodyWidth + 500 + "px")
+                document.getElementById("graph-graph").setAttribute("height", 200 * bodyWidth + 500 + "px")
             } else {
-                document.getElementById("graph").setAttribute("width", 1000 * bodyWidth + 500 + "px")
-                document.getElementById("svgBack").setAttribute("width", 1000 * bodyWidth + 500)
+                document.getElementById("graph").setAttribute("width", 500 * bodyWidth + 500 + "px")
+                document.getElementById("graph-graph").setAttribute("width", 500 * bodyWidth + 500 + "px")
+
             }
             metricFlow.createNodes(nodes);
-        }
-
-        function up(list, nodes) {
-            for (let j = 0; j < list.length; j++) {
-                for (let i = 0; i < nodes.length; i++) {
-                    if (list[j] == nodes[i]['id']) {
-                        nodes[i]['y'] = nodes[i]['y'] - ((j + 1) * 25 * (nodes[i].hasOwnProperty("data") ? nodes[i]['data'].length : 3))
-                        break
+            for (let i = 0; i < topList.length; i++) {
+                let top = topList[i];
+                let topDom = metricFlow.createNode(top);
+                if (top.hasOwnProperty("children") && top['children'] != null) {
+                    for (let j = 0; j < top['children'].length; j++) {
+                        let childDom = metricFlow.createNode(top['children'][j]);
+                        metricFlow.createLink(topDom, childDom);
                     }
                 }
             }
+
+             for (let i = 0; i < relations.length; i++) {
+                 [sourceId,targetId] = relations[i];
+                 metricFlow.createLink(document.getElementById(sourceId), document.getElementById(targetId));
+             }
         }
 
 
-        function down(list, nodes) {
-            for (let j = 0; j < list.length; j++) {
-                for (let i = 0; i < nodes.length; i++) {
-                    if (list[j] == nodes[i]['id']) {
-                        nodes[i]['y'] = nodes[i]['y'] + (25 * (nodes[i].hasOwnProperty("data") ? nodes[i]['data'].length : 3))
-                        break
-                    }
-                }
-            }
-        }
-
-        function findFrom(current, nodes, i) {
-            if (current['from'] != nodes[i - 1]['id']) {
+        function findFromIndex(fromId, nodes, i) {
+            if (fromId != nodes[i - 1]['id']) {
                 if ((i - 1) > 0) {
-                    return findFrom(current, nodes, i - 1)
+                    return findFromIndex(fromId, nodes, i - 1)
                 }
             } else {
-                return nodes[i - 1]
+                return i - 1
             }
-        }
-
-        function getMiddleXy(form, nodesMap) {
-            let mx = 0;
-            let my = 0;
-            if (form.length % 2 == 0) {
-                let m1Index = form.length / 2 - 1;
-                let m2Index = (form.length / 2);
-                let m1Xy = nodesMap[form[m1Index]];
-                let m2Xy = nodesMap[form[m2Index]];
-                mx = (m1Xy[0] + m2Xy[0]) / 2;
-                my = (m1Xy[1] + m2Xy[1]) / 2;
-            } else {
-                let m1Index = Math.floor(form.length / 2);
-                let m1Xy = nodesMap[form[m1Index]];
-                mx = m1Xy[0];
-                my = m1Xy[1];
-            }
-            return [mx, my]
         }
     </script>
 </head>

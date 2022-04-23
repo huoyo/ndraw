@@ -12,10 +12,10 @@
         window.onload = function () {
             let options = {
                 "flow": "flowValue",
-                'link-width-offset': -1,
+                'link-width-offset': 0,
                 'link-start-offsetx': 0,
-                'link-start-offsety': -3,
-                'link-end-offsety': -3,
+                'link-start-offsety': 0,
+                'link-end-offsety': 0,
                 'link-color': '#666666',
             };
             let metricFlow = MetricFlow("graph", options);
@@ -35,10 +35,8 @@
             let bodyWidth = nodes.length % 10;
             if (options['flow'] == 'vertical') {
                 document.getElementById("graph").setAttribute("height", 700 * bodyWidth + 500 + "px")
-                document.getElementById("svgBack").setAttribute("height", 700 * bodyWidth + 500)
             } else {
                 document.getElementById("graph").setAttribute("width", 1000 * bodyWidth + 500 + "px")
-                document.getElementById("svgBack").setAttribute("width", 1000 * bodyWidth + 500)
             }
         }
 
