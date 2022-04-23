@@ -45,6 +45,7 @@ import ndraw
 ndraw.server("pbpath")
 # 打开浏览器访问9999端口即可
 ```
+![输入图片说明](image/image.png)
 
 ### 2、h5模型可视化
 
@@ -78,6 +79,8 @@ html = ndraw.render("pb/h5/mode均可",out_file="model.html")
 ```
 
 ### 5、可视化主题
+
+可视化主题仅仅对于部分节点生效，类似于LSTM，Conv2D已有预置主题
 
 1、DEFAULT
 
