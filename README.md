@@ -88,7 +88,7 @@ html = ndraw.render("pb/h5/mode均可",out_file="model.html")
 import ndraw
 ndraw.server("model.h5",theme=ndraw.DEFAULT)
 ```
-![输入图片说明](image/default.png)
+![输入图片说明](image/image2.png)
 
 2、BLACK_WHITE
 
