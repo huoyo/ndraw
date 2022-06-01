@@ -7,9 +7,6 @@
     <img src='https://shields.io/badge/dependencies-tensorflow/metricflow.js-blue.svg'>
     <img src='https://shields.io/badge/author-Chang Zhang-dbab09.svg'>
     <h4>ndraw是一个可自由定义网络图、流程图以及简单的神经网络可视化（目前支持Tensorflow2.0+模型可视化）工具</h4>
-    <p>
-    
-    </p>
 </div>
 
 
