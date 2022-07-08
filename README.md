@@ -39,6 +39,8 @@ ndraw.draw_server(port=43808)
 
 ```
 
+![输入图片说明](image/drawOperate.png)
+
 ## 自定义代码画图
 
 ### 1、简单直线流程
