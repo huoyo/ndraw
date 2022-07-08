@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ndraw</title>
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <style>
+        #node-input{
+            position: absolute;
+            height: 20px;
+            width: 150px;
+            border-radius: 5px;
+            font-size: 10px;
+            border: 1px solid darkcyan;
+            display: none;
+        }
+
+        #color-container{
+            position: absolute;
+            border-radius: 4px;
+            font-size: 10px;
+            border: 1px solid darkcyan;
+            width: 45px;
+            text-align: center;
+            display: none;
+            background-color: #faf9f4;
+            width: 225px;
+            height: 200px;
+        }
+        #color-picker { width: 200px; height: 200px }
+        #color-slide { width: 25px; height: 200px }
+        .menu{
+            list-style: none;
+            margin:0;
+            padding:0;
+            position: absolute;
+            left: 20px;
+            top: 150px;
+            border-radius: 4px;
+            font-size: 10px;
+            border: 1px solid darkcyan;
+            width: 45px;
+            text-align: center;
+            display: none;
+            background-color: #faf9f4;
+        }
+        .menu li{
+            padding: 2px;
+        }
+        .menu li:hover{
+            background-color: darkcyan;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        templateJs
+    </script>
+
+    <script>
+        let metricFlow;
+        let isDrag = false;
+        let isDown = false;
+        let nodes = [];
+        let moveTracks = [];
+        let lastPathX ;
+        let lastPathY ;
+        let lastNodeMinX = null ;
+        let lastNodeMinY = null ;
+        let lastNodeMaxX = null ;
+        let lastNodeMaxY = null ;
+        let menuMap  = new Map();
+        let clickNodeId = null;
+        let clickLineId = null;
+        window.onload = function () {
+            let options = {
+                "drag":isDrag,
+                "link-color":"#3f6c53",
+                "link-width-offset":0
+            };
+            metricFlow = MetricFlow("graph",options);
+
+            metricFlow.back.oncontextmenu=function(e){
+                preventDefault(e);
+                let colorContainer = document.querySelector("#back-menu");
+                colorContainer.style.display='block';
+                colorContainer.style.left=(e.x+30)+'px';
+                colorContainer.style.top=(e.y-5)+'px';
+            };
+
+            metricFlow.back.onmousedown=function(e) {
+                isDown = true;
+                let x = e.clientX;
+                let y = e.clientY;
+                moveTracks = [];
+                lastPathX =x;
+                lastPathY =y;
+                for(let key of menuMap.keys()){
+                    metricFlow.removeNode(key);
+                    menuMap.delete(key);
+                }
+                let nodeInput = document.querySelector("#node-input");
+                nodeInput.style.display='none';
+                let nodeMenu = document.querySelector("#node-menu");
+                nodeMenu.style.display='none';
+                let lineMenu = document.querySelector("#line-menu");
+                lineMenu.style.display='none'
+                let rayMenu = document.querySelector("#ray-menu");
+                rayMenu.style.display='none'
+                let colorContainer = document.querySelector("#color-container");
+                colorContainer.style.display='none';
+                document.querySelector("#color-picker").innerHTML = '';
+                document.querySelector("#color-slide").innerHTML = '';
+                let backMenu = document.querySelector("#back-menu");
+                backMenu.style.display='none';
+                clickNodeId = null;
+                clickLineId = null;
+            }
+            metricFlow.back.onmousemove=function (e) {
+                if (!isDown) {
+                    return;
+                }
+                if (isDrag) {
+                    return;
+                }
+                let x = e.clientX;
+                let y = e.clientY;
+                moveTracks.push([x,y]);
+                metricFlow.createPath(lastPathX,lastPathY,x,y);
+                lastPathX =x;
+                lastPathY =y;
+            }
+            metricFlow.back.ondblclick = function (){
+                isDrag = metricFlow.switchDrag();
+                Dreamer.destroyAll();
+                if (isDrag) {
+                    var closeMsg = Dreamer.loading("Switch to Dragging State");
+                    setTimeout(function(){
+                        closeMsg();
+                    }, 10000);
+                }else {
+                    var closeMsg = Dreamer.loading("Switch to Drawing State");
+                    setTimeout(function(){
+                        closeMsg();
+                    }, 10000);
+                }
+            }
+            metricFlow.back.onmouseup=function (e) {
+                isDown = false;
+                if (isDrag) {
+                    return;
+                }
+                let minX = Number.MAX_SAFE_INTEGER;
+                let maxX = Number.MIN_SAFE_INTEGER;
+                let minY = Number.MAX_SAFE_INTEGER;
+                let maxY = Number.MIN_SAFE_INTEGER;
+                for (let i = 0; i < moveTracks.length; i=i+1) {
+                    if (moveTracks[i][0]>maxX) {
+                        maxX = moveTracks[i][0]
+                    }
+                    if (moveTracks[i][0]<minX) {
+                        minX = moveTracks[i][0]
+                    }
+                    if (moveTracks[i][1]>maxY) {
+                        maxY = moveTracks[i][1]
+                    }
+                    if (moveTracks[i][1]<minY) {
+                        minY = moveTracks[i][1]
+                    }
+                }
+                if (lastNodeMinX!=null) {
+                    let xDistance = Math.abs(minX-lastNodeMinX);
+                    let yDistance = Math.abs(minY-lastNodeMinY);
+
+                    let xMaxDistance = Math.abs(maxX-lastNodeMaxX);
+                    let yMaxDistance = Math.abs(maxY-lastNodeMaxY);
+                    if ( xDistance<30){
+                        minX = lastNodeMinX;
+                    }
+                    if (yDistance<30) {
+                        minY = lastNodeMinY;
+                    }
+                    if (xMaxDistance<30) {
+                        maxX = lastNodeMaxX;
+                    }
+                    if (yMaxDistance<30) {
+                        maxY = lastNodeMaxY;
+                    }
+                }
+                fetch('http://localhost:ndrawServerPort/drawIntent', {
+                    method: 'post',
+                    body: JSON.stringify({'seq':moveTracks}),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json['intent']=='line') {
+                            drawLine(moveTracks[moveTracks.length-1][0],moveTracks[moveTracks.length-1][1]);
+                        }else  if (json['intent']=='circle') {
+                            drawCircle(minX,minY,maxX,maxY);
+                        }else  if (json['intent']=='rectangle') {
+                            drawRectangle(minX,minY,maxX,maxY);
+                        }
+                        moveTracks = [];
+                        let paths = document.getElementById('trackPathSvgs');
+                        paths.innerHTML = ''
+                    }).catch(e => {
+                })
+            }
+        }
+
+        function drawRectangle(minX,minY,maxX,maxY){
+            let id = "node1"+guid();
+            nodes.push(id);
+            lastNodeMinX = minX;
+            lastNodeMinY = minY;
+            lastNodeMaxX = maxX;
+            lastNodeMaxY = maxY;
+            let node1 = {
+                "x": minX,
+                "y": minY,
+                "id": id,
+                "contextmenu":"nodeMenuClick",
+                "dblclick":"dblClick",
+                "style": {
+                    "node-type": "rectangle",
+                    'node-width':(maxX-minX)+'px',
+                    'node-height':(maxY-minY)+'px',
+                    'border-width':'3px',
+                    'border-color':'#25264c',
+                    'title-color':'#25264c',
+                },
+                "title": {'name': ""}
+            }
+            metricFlow.createNode(node1);
+        }
+
+        function drawCircle(minX,minY,maxX,maxY) {
+            let id = "node1"+guid();
+            nodes.push(id);
+            lastNodeMinX = minX;
+            lastNodeMinY = minY;
+            lastNodeMaxX = maxX;
+            lastNodeMaxY = maxY;
+            let node1 = {
+                "x": minX,
+                "y": minY,
+                "id": id,
+                "contextmenu":"nodeMenuClick",
+                "dblclick":"dblClick",
+                "style": {
+                    "node-type": "circle",
+                    'node-width':(maxX-minX)+'px',
+                    'node-height':(maxX-minX)+'px',
+                    'border-width':'3px',
+                    'border-color':'#177854',
+                    'title-color':'#177854',
+                },
+                "title": {'name': ""}
+            }
+            metricFlow.createNode(node1);
+        }
+
+        function getLineStartIndex() {
+            let minStartD = Number.MAX_VALUE;
+            let minStartDIndex = 0;
+            let lineStartX = moveTracks[0][0];
+            let lineStartY = moveTracks[0][1];
+            for (let i = 0; i < nodes.length; i++) {
+                let nodeInfo = metricFlow.getNodeInfo(nodes[i]);
+                let nodeXY = [nodeInfo['x'],nodeInfo['y'],nodeInfo['x']+nodeInfo['width'],nodeInfo['y']+nodeInfo['height']];
+                let centerX = (nodeXY[0]+nodeXY[2])/2;
+                let centerY = (nodeXY[1]+nodeXY[3])/2;
+                let d = Math.sqrt(Math.pow(centerX-lineStartX,2)+Math.pow(centerY-lineStartY,2));
+                if (d<minStartD) {
+                    minStartD = d;
+                    minStartDIndex = i;
+                }
+            }
+            if (minStartD>100) {
+                return -1;
+            };
+            return minStartDIndex
+        }
+
+        function getLineEndIndex() {
+            let minEndD = Number.MAX_VALUE;
+            let minEndDIndex = 0;
+            let lineEndX = moveTracks[moveTracks.length-1][0];
+            let lineEndY = moveTracks[moveTracks.length-1][1];
+            for (let i = 0; i < nodes.length; i++) {
+                let nodeInfo = metricFlow.getNodeInfo(nodes[i]);
+                let nodeXY = [nodeInfo['x'],nodeInfo['y'],nodeInfo['x']+nodeInfo['width'],nodeInfo['y']+nodeInfo['height']];
+                let centerX = (nodeXY[0]+nodeXY[2])/2;
+                let centerY = (nodeXY[1]+nodeXY[3])/2;
+                let d = Math.sqrt(Math.pow(centerX-lineEndX,2)+Math.pow(centerY-lineEndY,2));
+                if (d<minEndD) {
+                    minEndD = d;
+                    minEndDIndex = i;
+                }
+            }
+            if (minEndD>100) {
+                return -1;
+            };
+            return minEndDIndex;
+        }
+
+        function drawLine(ex,ey) {
+            let minStartDIndex = getLineStartIndex();
+            let minEndDIndex = getLineEndIndex();
+            if (minStartDIndex==-1 || minEndDIndex==-1) {
+                return
+            };
+            metricFlow.createLink(document.getElementById(nodes[minStartDIndex]),document.getElementById(nodes[minEndDIndex]));
+            metricFlow.bindLinkEvent(nodes[minStartDIndex],nodes[minEndDIndex],'oncontextmenu','lineMenuClick');
+        }
+
+        function guid() {
+            return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0,
+                    v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function preventDefault(e) {
+            window.event.cancelBubble = true;
+            e.preventDefault();
+        }
+
+        function nodeMenuClick(e) {
+            preventDefault(e);
+            clickNodeId = metricFlow.getNodeId(e);
+            let nodeMenu = document.querySelector("#node-menu");
+            nodeMenu.style.display='block';
+            nodeMenu.style.left=(e.x+20)+'px';
+            nodeMenu.style.top=(e.y-10)+'px';
+        }
+
+        function lineMenuClick(e) {
+            preventDefault(e);
+            clickLineId = e.currentTarget.id;
+            let nodeMenu = document.querySelector("#line-menu");
+            nodeMenu.style.display='block';
+            nodeMenu.style.left=(e.x+20)+'px';
+            nodeMenu.style.top=(e.y-30)+'px';
+        }
+
+        function rayMenuClick(e) {
+            preventDefault(e);
+            clickLineId = e.currentTarget.id;
+            let nodeMenu = document.querySelector("#ray-menu");
+            nodeMenu.style.display='block';
+            nodeMenu.style.left=(e.x+20)+'px';
+            nodeMenu.style.top=(e.y-30)+'px';
+        }
+
+        function dblClick(e) {
+            preventDefault(e);
+            clickNodeId = metricFlow.getNodeId(e);
+            let nodeInput = document.querySelector("#node-input");
+            nodeInput.style.display='block';
+            nodeInput.style.left=e.x+'px';
+            nodeInput.style.top=e.y+'px';
+            nodeInput.value=metricFlow.getTitle(clickNodeId);
+            nodeInput.focus();
+        }
+
+        function setNodeTitle(value) {
+            metricFlow.setTitle(clickNodeId,value);
+            let nodeInput = document.querySelector("#node-input");
+            nodeInput.value='';
+            nodeInput.style.display='none';
+            clickNodeId = null;
+        }
+        function removeNode() {
+            metricFlow.removeNode(clickNodeId);
+            let nodeInput = document.querySelector("#node-menu");
+            nodeInput.style.display='none';
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i]==clickNodeId) {
+                    nodes.splice(i,1);
+                }
+            }
+            clickNodeId = null;
+        }
+
+        function newNode(e,nodeType) {
+            if (nodeType=='circle') {
+                drawCircle(e.x-30,e.y-30,e.x+30,e.y+30);
+            }else  if (nodeType=='rectangle') {
+                drawRectangle(e.x-40,e.y-20,e.x+40,e.y+20);
+            }
+            let nodeInput = document.querySelector("#back-menu");
+            nodeInput.style.display='none';
+        }
+
+        function cloneRightNode() {
+            let info = metricFlow.getNodeInfo(clickNodeId);
+            let x = info['x'];
+            let y = info['y'];
+            let width = info['width']-6;
+            let height = info['height']-6;
+            let nx = x+width+width/2+30;
+            if (info['nodeType']=='circle') {
+                drawCircle(nx,y,nx+width,y+height);
+            }else  if (info['nodeType']=='rectangle') {
+                drawRectangle(nx,y,nx+width,y+height);
+            }
+            let nodeInput = document.querySelector("#node-menu");
+            nodeInput.style.display='none';
+            clickNodeId = null;
+        }
+
+        function cloneDownNode() {
+            let info = metricFlow.getNodeInfo(clickNodeId);
+            let x = info['x'];
+            let y = info['y'];
+            let width = info['width']-6;
+            let height = info['height']-6;
+            let ny = y+height+height/2+30;
+            if (info['nodeType']=='circle') {
+                drawCircle(x,ny,x+width,ny+height);
+            }else  if (info['nodeType']=='rectangle') {
+                drawRectangle(x,ny,x+width,ny+height);
+            }
+            let nodeInput = document.querySelector("#node-menu");
+            nodeInput.style.display='none';
+            clickNodeId = null;
+        }
+
+        function removeLine() {
+            let lineIdSplit = clickLineId.split("-");
+            metricFlow.removeLink(lineIdSplit[1],lineIdSplit[2]);
+            lineIdSplit = null;
+            let nodeInput = document.querySelector("#line-menu");
+            nodeInput.style.display='none';
+            clickLineId = null;
+        }
+
+        function removeRay() {
+            metricFlow.removeRay(clickLineId);
+            lineIdSplit = null;
+            let nodeInput = document.querySelector("#ray-menu");
+            nodeInput.style.display='none';
+            clickLineId = null;
+        }
+        
+        function setNodeColor(e) {
+            let colorContainer = document.querySelector("#color-container");
+            colorContainer.style.display='flex';
+            colorContainer.style.left=(e.x+30)+'px';
+            colorContainer.style.top=(e.y-5)+'px';
+
+            let nodeMenu = document.querySelector("#node-menu");
+            nodeMenu.style.display='none';
+            let  color = ColorPicker(
+                document.getElementById('color-slide'),
+                document.getElementById('color-picker'),
+                function(hex, hsv, rgb) {
+                    if (clickNodeId!=null) {
+                        metricFlow.setColor(clickNodeId,hex,hex);
+                    }
+                });
+        }
+
+        function setLineColor(e) {
+            let colorContainer = document.querySelector("#color-container");
+            colorContainer.style.display='flex';
+            colorContainer.style.left=(e.x+30)+'px';
+            colorContainer.style.top=(e.y-5)+'px';
+
+            let lineMenu = document.querySelector("#line-menu");
+            lineMenu.style.display='none';
+
+            let  color = ColorPicker(
+                document.getElementById('color-slide'),
+                document.getElementById('color-picker'),
+                function(hex, hsv, rgb) {
+                    if (clickLineId!=null) {
+                        let lineIdSplit = clickLineId.split("-");
+                        metricFlow.setLinkColor(lineIdSplit[1],lineIdSplit[2],hex);
+                    }
+                });
+        }
+
+        function clearAll() {
+            metricFlow.clearAll();
+            nodes = [];
+            let backMenu = document.querySelector("#back-menu");
+            backMenu.style.display='none';
+        }
+
+    </script>
+</head>
+<body>
+
+<div id="graph"  height="700px" width="1100px" >
+
+</div>
+<canvas id="canvas"  style="opacity: 0"></canvas>
+<input id="node-input" autofocus="true"  type="text" onchange="setNodeTitle(this.value)">
+
+<ul id="back-menu" class="menu">
+    <li style="border-bottom: 1px solid darkcyan" onclick="newNode(event,'circle');">○</li>
+    <li style="border-bottom: 1px solid darkcyan" onclick="newNode(event,'rectangle');">□</li>
+    <li onclick="clearAll();">Clear All</li>
+</ul>
+
+<ul id="node-menu" class="menu">
+    <li style="border-bottom: 1px solid darkcyan" onclick="cloneRightNode();">→</li>
+    <li style="border-bottom: 1px solid darkcyan" onclick="cloneDownNode();">↓</li>
+    <li style="border-bottom: 1px solid darkcyan" onclick="setNodeColor(event)">Color</li>
+    <li onclick="removeNode();">Delete</li>
+</ul>
+
+<ul id="line-menu" class="menu">
+    <li style="border-bottom: 1px solid darkcyan" onclick="setLineColor(event)">Color</li>
+    <li onclick="removeLine();">Delete</li>
+</ul>
+
+<ul id="ray-menu" class="menu">
+    <li style="border-bottom: 1px solid darkcyan" onclick="setLineColor(event)">Color</li>
+    <li onclick="removeRay();">Delete</li>
+</ul>
+<div id="color-container">
+    <div id="color-picker"></div>
+    <div id="color-slide"></div>
+</div>
+</body>
+</html>
