@@ -186,7 +186,7 @@
                         maxY = lastNodeMaxY;
                     }
                 }
-                fetch('http://localhost:ndrawServerPort/drawIntent', {
+                fetch('/drawIntent', {
                     method: 'post',
                     body: JSON.stringify({'seq':moveTracks}),
                     headers: {

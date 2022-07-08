@@ -143,9 +143,7 @@ def draw_server(host='localhost', port=9999):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                html = draw_free_template_html\
-                    .replace("templateJs",f"{dream_msg_js};{color_picker_js}{template_js}")\
-                    .replace("ndrawServerPort",str(port))
+                html = draw_free_template_html.replace("templateJs",f"{dream_msg_js};{color_picker_js};{template_js}")
                 self.wfile.write(html.encode())
 
 
