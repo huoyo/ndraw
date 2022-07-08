@@ -3,7 +3,7 @@
 ---
 
 <div >
-    <img src='https://shields.io/badge/version-1.1.5-green.svg'>
+    <img src='https://shields.io/badge/version-1.2.1-green.svg'>
     <img src='https://shields.io/badge/dependencies-tensorflow/metricflow.js-blue.svg'>
     <img src='https://shields.io/badge/author-Chang Zhang-dbab09.svg'>
     <h4>ndraw是一个可自由定义网络图、流程图以及简单的神经网络可视化（目前支持Tensorflow2.0+模型可视化）工具</h4>
@@ -27,8 +27,19 @@ python setup.py bdist_egg
 python setup.py install
 ```
 
+## 随手画图
 
-## 自定义画图
+### 1、启动画图服务
+
+```python
+# -*- encoding: utf-8 -*-
+import ndraw
+# 打开 http://localhost:43808 根据鼠标即兴画图
+ndraw.draw_server(port=43808)
+
+```
+
+## 自定义代码画图
 
 ### 1、简单直线流程
 ```python
