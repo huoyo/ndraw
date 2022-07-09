@@ -79,6 +79,7 @@
             };
             metricFlow = MetricFlow("graph",options);
 
+            Dreamer.info("You can draw something by your mouse now!",5000);
             metricFlow.back.oncontextmenu=function(e){
                 preventDefault(e);
                 let colorContainer = document.querySelector("#back-menu");
