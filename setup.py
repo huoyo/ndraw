@@ -9,14 +9,14 @@ from setuptools import find_packages, setup
 
 setup(
     name='ndraw',
-    version='1.2.2',
+    version='1.2.3',
     packages=find_packages(),
     author='Chang Zhang',
     author_email='1729913829@qq.com',
     url='https://gitee.com/huoyo/ndraw',
     license="Apache License",
     include_package_data=True,
-    description='a tool to show neural networks',
+    description='a tool to show neural networks and draw custom networks.',
     data_files=[
         ('core', ['core/MetricFlow.js', 'core/AutoTemplate.html', 'core/StableTemplate.html','core/colorpicker.min.js','core/dream-msg.min.js','core/DrawFree.html']), ]
 )
