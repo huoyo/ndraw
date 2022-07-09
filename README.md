@@ -37,7 +37,7 @@ python setup.py install
 import ndraw
 # 打开 http://localhost:43808 根据鼠标即兴画图
 ndraw.draw_server(port=43808)
-
+# 操作流程看下图
 ```
 
 ![输入图片说明](image/drawOperate.png)
