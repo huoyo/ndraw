@@ -136,6 +136,7 @@ def draw_server(host='localhost', port=9999):
     from core import dream_msg_js
     from core import color_picker_js
     from core import template_js
+    from core import draw_operate_js
 
     class NRequest(BaseHTTPRequestHandler):
         def do_GET(self):
@@ -143,7 +144,7 @@ def draw_server(host='localhost', port=9999):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                html = draw_free_template_html.replace("templateJs",f"{dream_msg_js};{color_picker_js};{template_js}")
+                html = draw_free_template_html.replace("templateJs",f"{dream_msg_js};{color_picker_js};{template_js};{draw_operate_js}")
                 self.wfile.write(html.encode())
 
 

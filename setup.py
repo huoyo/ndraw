@@ -18,5 +18,5 @@ setup(
     include_package_data=True,
     description='a tool to show neural networks and draw custom networks.',
     data_files=[
-        ('core', ['core/MetricFlow.js', 'core/AutoTemplate.html', 'core/StableTemplate.html','core/colorpicker.min.js','core/dream-msg.min.js','core/DrawFree.html']), ]
+        ('core', ['core/MetricFlow.js', 'core/AutoTemplate.html', 'core/StableTemplate.html','core/colorpicker.min.js','core/dream-msg.min.js','core/DrawOperate.js','core/DrawFree.html']), ]
 )
