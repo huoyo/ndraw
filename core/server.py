@@ -158,7 +158,7 @@ def draw_server(host='localhost', port=9999):
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                if request_data==None or len(request_data)<2:
+                if request_data==None or len(request_data)<3:
                     self.wfile.write(json.dumps({"intent":"other"}).encode())
                 else:
                     coses, d = get_cos_d(request_data)
