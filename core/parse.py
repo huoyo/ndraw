@@ -11,10 +11,10 @@ from draw.graph import Graph
 
 class CommParser(object):
 
-    def __call__(self, model, out_file='model.html', flow="horizontal", theme=Defualt()):
-        return self.render(model, out_file=out_file, theme=theme, flow=flow)
+    def __call__(self, model, init_x = 0,init_y = 0, out_file='model.html', flow="horizontal", theme=Defualt()):
+        return self.render(model,init_x = init_x,init_y = init_y,  out_file=out_file, theme=theme, flow=flow)
 
-    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt()):
+    def render(self, model,init_x = 0,init_y = 0,  out_file='model.html', flow="horizontal", theme=Defualt()):
         pass
 
     def parse_layer(self, layer):
@@ -91,7 +91,7 @@ class TFmodelParser(CommParser):
         self.inputs = ['Input','InputLayer']
 
 
-    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt):
+    def render(self, model,init_x = 0,init_y = 0, out_file='model.html', flow="horizontal", theme=Defualt):
         nodes_text = []
         nodes = []
         for i, layer in enumerate(model.layers):
@@ -104,6 +104,8 @@ class TFmodelParser(CommParser):
             .replace("flowValue", flow.value if isinstance(flow, Flow) else flow) \
             .replace("templateJs", template_js) \
             .replace("nodeDistanceX", "-30") \
+            .replace("initXValue", str(init_x)) \
+            .replace("initYValue", str(init_y)) \
             .replace("nodeDistanceY", "-55") \
             .replace("nodesText", ';'.join(nodes_text)) \
             .replace("nodesList", str(nodes).replace('\'', ''))
@@ -198,7 +200,7 @@ class TFmodelParser(CommParser):
 
 class AutoGraphParser(CommParser):
 
-    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt()):
+    def render(self, model,init_x = 0,init_y = 0, out_file='model.html', flow="horizontal", theme=Defualt()):
         nodes_text = []
         nodes = []
         for i, node in enumerate(model.nodes):
@@ -211,6 +213,8 @@ class AutoGraphParser(CommParser):
             .replace("templateJs", template_js) \
             .replace("nodeDistanceX", "-40") \
             .replace("nodeDistanceY", "55") \
+            .replace("initXValue", str(init_x)) \
+            .replace("initYValue", str(init_y)) \
             .replace("nodesText", ';'.join(nodes_text)) \
             .replace("nodesList", str(nodes).replace('\'', ''))
 
@@ -247,7 +251,7 @@ class AutoGraphParser(CommParser):
 
 class StableGraphParser(AutoGraphParser):
 
-    def render(self, model, out_file='model.html', flow="horizontal", theme=Defualt()):
+    def render(self, model,init_x = 0,init_y = 0, out_file='model.html', flow="horizontal", theme=Defualt()):
         nodes_text = []
         nodes = []
         link_ids = []

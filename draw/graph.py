@@ -98,8 +98,8 @@ class Graph(object):
 
         return node
 
-    def server(self, host='localhost', port=9999, flow="horizontal", theme=Defualt()):
-        server.server(self,host=host,port=port,flow=flow,theme=theme)
+    def server(self, host='localhost', port=9999,init_x = 0,init_y = 0, flow="horizontal", theme=Defualt()):
+        server.server(self,host=host,port=port,init_x=init_x,init_y=init_y,flow=flow,theme=theme)
 
     def render(self,out_file='model.html', flow="horizontal", theme=Defualt()):
         return server.render(self,out_file=out_file,flow=flow,theme=theme)

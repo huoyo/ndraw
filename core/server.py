@@ -27,11 +27,13 @@ stable_graph_parser = StableGraphParser()
 tfmodel_parser = TFmodelParser()
 
 
-def server(model, host='localhost', port=9999, flow="horizontal", theme=Defualt()):
+def server(model, host='localhost',port=9999,init_x = 0,init_y = 0,flow="horizontal", theme=Defualt()):
     '''
     start a webserver to show model structure
     :param model: a model object such as tf.keras.Sequential/tf.keras.Model,
                   or h5 model path such as mnist.h5 and pb model path
+    :param init_x: initial x of node[0]
+    :param init_y: initial y of node[0]
     :param host: webserver host,default value is localhost
     :param port: webserver port,default value is 9999
     :param flow: layout style：vertical/ndraw.VERTICAL and horizontal/ndraw.HORIZONTAL
@@ -44,7 +46,7 @@ def server(model, host='localhost', port=9999, flow="horizontal", theme=Defualt(
     '''
     from http.server import HTTPServer, BaseHTTPRequestHandler
     logging.info("@see http://{}:{}".format(host, port))
-    html = render(model, out_file=None, flow=flow, theme=theme)
+    html = render(model, out_file=None,init_x = init_x,init_y = init_y, flow=flow, theme=theme)
 
     class NRequest(BaseHTTPRequestHandler):
         def do_GET(self):
@@ -57,7 +59,7 @@ def server(model, host='localhost', port=9999, flow="horizontal", theme=Defualt(
     server.serve_forever()
 
 
-def render(model, out_file='model.html', flow="horizontal", theme=Defualt()):
+def render(model, out_file='model.html',init_x = 0,init_y = 0, flow="horizontal", theme=Defualt()):
     '''
     start a webserver to show model structure
     :param model: a model object such as tf.keras.Sequential/tf.keras.Model,
@@ -74,16 +76,16 @@ def render(model, out_file='model.html', flow="horizontal", theme=Defualt()):
     :return: html
     '''
     if isinstance(model, AutoGraph):
-        return auto_graph_parser(model, flow=flow, theme=theme, out_file=out_file)
+        return auto_graph_parser(model,init_x = init_x,init_y = init_y, flow=flow, theme=theme, out_file=out_file)
     elif isinstance(model, StableGraph):
-        return stable_graph_parser(model, flow=flow, theme=theme, out_file=out_file)
+        return stable_graph_parser(model,init_x = init_x,init_y = init_y,flow=flow, theme=theme, out_file=out_file)
     elif tf:
         if isinstance(model, tf.keras.Sequential) or isinstance(model, tf.keras.Model):
-            return tfmodel_parser(model,out_file=out_file,flow=flow,theme=theme)
+            return tfmodel_parser(model,init_x = init_x,init_y = init_y, out_file=out_file,flow=flow,theme=theme)
         elif isinstance(model, str):
             try:
                 h5model = tf.keras.models.load_model(model)
-                return render(h5model)
+                return render(h5model,init_x = init_x,init_y = init_y)
             except Exception as e:
                 logging.error("invalid model path!")
                 raise e

@@ -9,6 +9,8 @@
         templateJs
     </script>
     <script>
+        let initX = initXValue;
+        let initY = initYValue;
         window.onload = function () {
             let options = {
                 "flow": "flowValue",
@@ -25,11 +27,11 @@
             ;
             let nodes = nodesList;
             if (options['flow'] == 'vertical') {
-                nodes[0]['x'] = window.screen.width / 2 - 100;
-                nodes[0]['y'] = 10;
+                nodes[0]['x'] = initX==0?(window.screen.width / 2 - 100):initX;
+                nodes[0]['y'] = initY==0?10:initY;
             } else {
-                nodes[0]['x'] = 10;
-                nodes[0]['y'] = window.screen.height / 2 - 100;
+                nodes[0]['x'] = initX==0?10:initX;
+                nodes[0]['y'] = initY==0?(window.screen.height / 2 - 100):initY;
             }
             nodes[0]['children'] = [];
             let topList = [];
