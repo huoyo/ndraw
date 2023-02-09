@@ -1,5 +1,7 @@
 # ndraw
 
+[支持作者和技术服务](https://afdian.net/a/huoyo)
+
 ---
 
 <div >
