@@ -54,6 +54,22 @@
             background-color: #faf9f4;
         }
 
+        .demenu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            left: 20px;
+            top: 150px;
+            border-radius: 4px;
+            font-size: 10px;
+            border: 1px solid red;
+            width: 45px;
+            text-align: center;
+            display: none;
+            background-color: #faf9f4;
+        }
+
         .menu li {
             padding: 2px;
         }
@@ -62,11 +78,71 @@
             background-color: darkcyan;
             cursor: pointer;
         }
+
+        .demenu li:hover {
+            cursor: pointer;
+        }
+
+        #file-menu {
+            z-index: 21;
+            position: absolute;
+            list-style-type: none;
+            margin: 0px;
+            padding: 10px 10px 20px 10px;
+            background-color: white;
+            border-radius: 2px;
+            height: auto;
+            right: 5px;
+            bottom: 0px;
+            top: 0px;
+            width: 250px;
+            overflow-y: auto;
+            box-shadow: 2px 2px 8px #98e0ba;
+            display: none;
+        }
+
+        #file-menu li {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            border-bottom: 1px solid #e0fae0;
+            color: #091c5d;
+        }
+
+        #file-menu li:hover {
+            box-shadow: 2px 2px 8px #98e0ba;
+        }
+
+        .mask-back {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0.9;
+        }
+
+        .nmodal {
+            position: fixed;
+            height: auto;
+            background-color: white;
+            text-align: center;
+            border-radius: 10px;
+            top: 30%;
+            box-shadow: #6c7973 1px 1px 7px;
+            display: none;
+            z-index: 10;
+            padding: 30px;
+        }
     </style>
     <script>
         templateJs
     </script>
     <script>
+        let files = filesList;
+        let nodeInfoList = []
+        let linkInfoList = []
         window.onload = function () {
             let options = {
                 "drag": isDrag,
@@ -91,10 +167,9 @@
                 moveTracks = [];
                 lastPathX = x;
                 lastPathY = y;
-                for (let key of menuMap.keys()) {
-                    metricFlow.removeNode(key);
-                    menuMap.delete(key);
-                }
+
+                let navMenu = document.querySelector("#nav-menu");
+                navMenu.style.display = 'none';
                 let nodeInput = document.querySelector("#node-input");
                 nodeInput.style.display = 'none';
                 let nodeMenu = document.querySelector("#node-menu");
@@ -113,6 +188,12 @@
                 clickLineId = null;
             }
             metricFlow.back.onmousemove = function (e) {
+                let innerWidth = window.innerWidth;
+                if (e.clientX > (innerWidth - 200)) {
+                    document.querySelector("#file-menu").style.display = 'block';
+                } else if (e.clientX < (innerWidth - 200 - 33)) {
+                    document.querySelector("#file-menu").style.display = 'none';
+                }
                 if (!isDown) {
                     return;
                 }
@@ -125,6 +206,7 @@
                 metricFlow.createPath(lastPathX, lastPathY, x, y);
                 lastPathX = x;
                 lastPathY = y;
+
             }
             metricFlow.back.ondblclick = function () {
                 isDrag = metricFlow.switchDrag();
@@ -204,6 +286,7 @@
                     }).catch(e => {
                 })
             }
+            initFiles();
         }
     </script>
 </head>
@@ -214,6 +297,9 @@
 </div>
 <canvas id="canvas" style="opacity: 0"></canvas>
 <input id="node-input" autofocus="true" type="text" onchange="setNodeTitle(this.value)">
+
+<!--<input id="file-input" autofocus="true" placeholder="please type a file name" type="text"-->
+<!--       onchange="saveAll(this.value)">-->
 
 <ul id="back-menu" class="menu">
     <li style="border-bottom: 1px solid darkcyan" onclick="newNode(event,'circle');">
@@ -227,7 +313,8 @@
             text
         </div>
     </li>
-    <li onclick="clearAll();">Clear All</li>
+    <li style="border-bottom: 1px solid darkcyan;" onclick="clearAll();">Clear</li>
+    <li onclick="showFileInput(event);">Save</li>
 </ul>
 
 
@@ -243,13 +330,30 @@
     <li onclick="removeLine();">Delete</li>
 </ul>
 
-<ul id="ray-menu" class="menu">
+<ul id="nav-menu" class="demenu" style="border-bottom-color: red;background-color: red;color: white;z-index: 33">
+    <li onclick="removeFile();">Delete</li>
+</ul>
+
+<ul id="ray-menu" class="demenu">
     <li style="border-bottom: 1px solid darkcyan" onclick="setLineColor(event)">Color</li>
     <li onclick="removeRay();">Delete</li>
 </ul>
+
+<ul id="file-menu">
+    <li style="border-bottom: 1px solid #3b3d3b;">Saved Files</li>
+</ul>
+
 <div id="color-container">
     <div id="color-picker"></div>
     <div id="color-slide"></div>
+</div>
+
+<div class="nmodal" id="file-model" style="background: white; left: calc(50% - 200px - 30px); top: 30%; width: 400px;">
+    <div style="display: flex;">
+        <input id="file-input" onkeypress="enterpress(event)" autofocus="true"
+               placeholder="please type a file name to save"
+               style="width: 100%;height: 40px;outline-style: none;border-radius: 5px;border: 1px solid #e8e8f4;font-size: 16px;color: #090910;padding-left: 10px;">
+    </div>
 </div>
 </body>
 </html>

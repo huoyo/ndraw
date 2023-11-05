@@ -9,9 +9,9 @@ let lastNodeMinX = null;
 let lastNodeMinY = null;
 let lastNodeMaxX = null;
 let lastNodeMaxY = null;
-let menuMap = new Map();
 let clickNodeId = null;
 let clickLineId = null;
+let clickFileName = null;
 
 function drawRectangle(minX, minY, maxX, maxY, color) {
     let id = "node1" + guid();
@@ -32,11 +32,18 @@ function drawRectangle(minX, minY, maxX, maxY, color) {
             'node-height': (maxY - minY) + 'px',
             'border-width': '3px',
             'border-color': (color == null || color == undefined) ? '#25264c' : color,
-            'title-color': (color == null || color == undefined) ? '#25264c' : color,
+            'title-color': (color == null || color == undefined) ? '#25264c' : color
         },
         "title": {'name': ""}
     }
+    nodeInfoList.push(deepClone(node1));
     metricFlow.createNode(node1);
+}
+
+function deepClone(obj) {
+    let _obj = JSON.stringify(obj);
+    let objClone = JSON.parse(_obj);
+    return objClone;
 }
 
 function drawTextRectangle(minX, minY, maxX, maxY, color) {
@@ -60,10 +67,11 @@ function drawTextRectangle(minX, minY, maxX, maxY, color) {
             'title-font-size': '14px',
             'border-width': '2px',
             'border-color': '#25264c',
-            'title-color': (color == null || color == undefined) ? '#fafafc' : color,
+            'title-color': (color == null || color == undefined) ? '#fafafc' : color
         },
         "title": {'name': "text"}
     }
+    nodeInfoList.push(deepClone(node1));
     metricFlow.createNode(node1);
 }
 
@@ -90,6 +98,7 @@ function drawCircle(minX, minY, maxX, maxY, color) {
         },
         "title": {'name': ""}
     }
+    nodeInfoList.push(deepClone(node1));
     metricFlow.createNode(node1);
 }
 
@@ -98,11 +107,20 @@ function getLineStartIndex() {
     let minStartDIndex = 0;
     let lineStartX = moveTracks[0][0];
     let lineStartY = moveTracks[0][1];
+    let lineEndX = moveTracks[moveTracks.length - 1][0];
     for (let i = 0; i < nodes.length; i++) {
         let nodeInfo = metricFlow.getNodeInfo(nodes[i]);
         let nodeXY = [nodeInfo['x'], nodeInfo['y'], nodeInfo['x'] + nodeInfo['width'], nodeInfo['y'] + nodeInfo['height']];
         let centerX = (nodeXY[0] + nodeXY[2]) / 2;
         let centerY = (nodeXY[1] + nodeXY[3]) / 2;
+        if ((lineEndX - lineStartX) > 10) {
+            centerX = nodeXY[2];
+            centerY = (nodeXY[1] + nodeXY[3]) / 2;
+        } else if ((lineEndX - lineStartX) < 10) {
+            centerX = nodeXY[0];
+            centerY = (nodeXY[1] + nodeXY[3]) / 2;
+        }
+
         let d = Math.sqrt(Math.pow(centerX - lineStartX, 2) + Math.pow(centerY - lineStartY, 2));
         if (d < minStartD) {
             minStartD = d;
@@ -119,6 +137,7 @@ function getLineStartIndex() {
 function getLineEndIndex() {
     let minEndD = Number.MAX_VALUE;
     let minEndDIndex = 0;
+    let lineStartX = moveTracks[0][0];
     let lineEndX = moveTracks[moveTracks.length - 1][0];
     let lineEndY = moveTracks[moveTracks.length - 1][1];
     for (let i = 0; i < nodes.length; i++) {
@@ -126,6 +145,13 @@ function getLineEndIndex() {
         let nodeXY = [nodeInfo['x'], nodeInfo['y'], nodeInfo['x'] + nodeInfo['width'], nodeInfo['y'] + nodeInfo['height']];
         let centerX = (nodeXY[0] + nodeXY[2]) / 2;
         let centerY = (nodeXY[1] + nodeXY[3]) / 2;
+        if ((lineEndX - lineStartX) > 10) {
+            centerX = nodeXY[0];
+            centerY = (nodeXY[1] + nodeXY[3]) / 2;
+        } else if ((lineEndX - lineStartX) < 10) {
+            centerX = nodeXY[2];
+            centerY = (nodeXY[1] + nodeXY[3]) / 2;
+        }
         let d = Math.sqrt(Math.pow(centerX - lineEndX, 2) + Math.pow(centerY - lineEndY, 2));
         if (d < minEndD) {
             minEndD = d;
@@ -148,6 +174,7 @@ function drawLine(ex, ey) {
     ;
     metricFlow.createLink(document.getElementById(nodes[minStartDIndex]), document.getElementById(nodes[minEndDIndex]));
     metricFlow.bindLinkEvent(nodes[minStartDIndex], nodes[minEndDIndex], 'oncontextmenu', 'lineMenuClick');
+    linkInfoList.push([nodes[minStartDIndex], nodes[minEndDIndex]])
 }
 
 function guid() {
@@ -221,6 +248,7 @@ function removeNode() {
     for (let i = 0; i < nodes.length; i++) {
         if (nodes[i] == clickNodeId) {
             nodes.splice(i, 1);
+            nodeInfoList.splice(i, 1);
         }
     }
     clickNodeId = null;
@@ -344,6 +372,173 @@ function setLineColor(e) {
 function clearAll() {
     metricFlow.clearAll();
     nodes = [];
+    nodeInfoList = [];
+    linkInfoList = [];
     let backMenu = document.querySelector("#back-menu");
     backMenu.style.display = 'none';
+}
+
+function initFiles() {
+    let fileMenu = document.querySelector("#file-menu");
+    fileMenu.innerHTML = '';
+    let li = document.createElement("li");
+    li.innerHTML = 'Saved Files';
+    li.style.borderBottom = 'border-bottom: 1px solid #3b3d3b;'
+    fileMenu.appendChild(li);
+    for (let i = 0; i < files.length; i++) {
+        let li = document.createElement("li");
+        li.innerHTML = files[i];
+        li.setAttribute("onclick", `loadFileHtml('${files[i]}')`);
+        li.setAttribute("oncontextmenu", `navMenuClick(event)`);
+        fileMenu.appendChild(li);
+    }
+}
+
+function loadFileHtml(fileName) {
+    fetch('/getHtml', {
+        method: 'post',
+        body: JSON.stringify({'name': fileName}),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(response => response.json())
+        .then(json => {
+            let content = json['content'];
+            let html = content['content'];
+            let nodeList = content['nodes'];
+            let links = content['links'];
+            nodeInfoList = [];
+            metricFlow.clearAll();
+            nodes = [];
+            for (let i = 0; i < nodeList.length; i++) {
+                nodes.push(nodeList[i]['id'])
+                nodeInfoList.push(deepClone(nodeList[i]));
+                metricFlow.createNode(nodeList[i]);
+            }
+            linkInfoList = [];
+            for (let i = 0; i < links.length; i++) {
+                metricFlow.createLink(document.getElementById(links[i][0]), document.getElementById(links[i][1]));
+                metricFlow.bindLinkEvent(links[i][0], links[i][1], 'oncontextmenu', 'lineMenuClick');
+                linkInfoList.push([links[i][0], links[i][1]]);
+            }
+            clickFileName = fileName;
+        }).catch(e => {
+    })
+}
+
+function showFileInput(e) {
+    createMask();
+    let fileModel = document.getElementById('file-model');
+    fileModel.style.display = 'block';
+    let backMenu = document.querySelector("#back-menu");
+    backMenu.style.display = 'none';
+    let fileInput = document.getElementById('file-input');
+    fileInput.value = clickFileName;
+}
+
+function enterpress(e) {
+    if (e.keyCode == 13) {
+        let fileInput = document.getElementById('file-input');
+        if (fileInput.value) {
+            saveAll(fileInput.value);
+        } else {
+            fileInput.value = 'please type a file name...'
+        }
+    }
+
+}
+
+function navMenuClick(e) {
+    preventDefault(e);
+    clickFileName = e.currentTarget.innerHTML;
+    let nodeMenu = document.querySelector("#nav-menu");
+    nodeMenu.style.display = 'block';
+    nodeMenu.style.left = (e.x) + 'px';
+    nodeMenu.style.top = (e.y) + 'px';
+}
+
+
+function removeFile() {
+    preventDefault(event);
+    for (let i = 0; i < files.length; i++) {
+        if (files[i] == clickFileName) {
+            files.splice(i, 1);
+        }
+    }
+    fetch('/deleteHtml', {
+        method: 'post',
+        body: JSON.stringify({
+            'name': clickFileName
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(response => response.json())
+        .then(json => {
+            clearAll();
+            initFiles();
+            let nodeMenu = document.querySelector("#nav-menu");
+            nodeMenu.style.display = 'none';
+        }).catch(e => {
+    })
+}
+
+function saveAll(name) {
+    for (let i = 0; i < nodeInfoList.length; i++) {
+        let nodeInfo = metricFlow.getNodeInfo(nodeInfoList[i]['id']);
+        nodeInfoList[i]['x'] = nodeInfo['x'];
+        nodeInfoList[i]['y'] = nodeInfo['y'];
+        nodeInfoList[i]['title']['name'] = nodeInfo['title'];
+    }
+    let graph = document.getElementById('graph');
+    fetch('/saveHtml', {
+        method: 'post',
+        body: JSON.stringify({
+            'nodes': nodeInfoList,
+            'links': linkInfoList,
+            'content': graph.innerHTML,
+            'name': name
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(response => response.json())
+        .then(json => {
+            let nodeInput = document.getElementById("file-input");
+            nodeInput.value = '';
+            let fileModel = document.getElementById('file-model');
+            fileModel.style.display = 'none';
+            closeMask();
+            let nodeMenu = document.querySelector("#node-menu");
+            nodeMenu.style.display = 'none';
+            if (files.indexOf(name) == -1) {
+                files.push(name);
+            }
+            initFiles();
+        }).catch(e => {
+    })
+}
+
+function closeMask() {
+    let back = document.querySelector(".mask-back");
+    if (back) {
+        back.remove();
+        let fileModel = document.getElementById('file-model');
+        fileModel.style.display = 'none';
+    }
+
+}
+
+function createMask() {
+    let back = document.createElement("div");
+    back.className = 'mask-back';
+    back.addEventListener("click", function () {
+        let back = document.querySelector(".mask-back");
+        if (back) {
+            back.remove();
+            let fileModel = document.getElementById('file-model');
+            fileModel.style.display = 'none';
+        }
+    });
+    document.querySelector("body").appendChild(back);
 }
