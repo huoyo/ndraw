@@ -175,6 +175,7 @@ function drawLine(ex, ey) {
     metricFlow.createLink(document.getElementById(nodes[minStartDIndex]), document.getElementById(nodes[minEndDIndex]));
     metricFlow.bindLinkEvent(nodes[minStartDIndex], nodes[minEndDIndex], 'oncontextmenu', 'lineMenuClick');
     linkInfoList.push([nodes[minStartDIndex], nodes[minEndDIndex]])
+    linkColorList.push('#3f6c53')
 }
 
 function guid() {
@@ -365,6 +366,13 @@ function setLineColor(e) {
             if (clickLineId != null) {
                 let lineIdSplit = clickLineId.split("-");
                 metricFlow.setLinkColor(lineIdSplit[1], lineIdSplit[2], hex);
+                for (let i = 0; i < linkInfoList.length; i++) {
+                    let linkArray = linkInfoList[i]
+                    if (lineIdSplit[1] === linkArray[0] && lineIdSplit[2] === linkArray[1]) {
+                        linkColorList.splice(i, 1, hex);
+                        break;
+                    }
+                }
             }
         });
 }
@@ -374,6 +382,7 @@ function clearAll() {
     nodes = [];
     nodeInfoList = [];
     linkInfoList = [];
+    linkColorList = [];
     let backMenu = document.querySelector("#back-menu");
     backMenu.style.display = 'none';
 }
@@ -407,6 +416,7 @@ function loadFileHtml(fileName) {
             let html = content['content'];
             let nodeList = content['nodes'];
             let links = content['links'];
+            let linkColors = content['linkColors'];
             nodeInfoList = [];
             metricFlow.clearAll();
             nodes = [];
@@ -416,10 +426,15 @@ function loadFileHtml(fileName) {
                 metricFlow.createNode(nodeList[i]);
             }
             linkInfoList = [];
+            linkColorList = [];
             for (let i = 0; i < links.length; i++) {
                 metricFlow.createLink(document.getElementById(links[i][0]), document.getElementById(links[i][1]));
+                if (linkColors) {
+                    metricFlow.setLinkColor(links[i][0], links[i][1], linkColors[i]);
+                }
                 metricFlow.bindLinkEvent(links[i][0], links[i][1], 'oncontextmenu', 'lineMenuClick');
                 linkInfoList.push([links[i][0], links[i][1]]);
+                linkColorList.push(linkColors[i]);
             }
             clickFileName = fileName;
         }).catch(e => {
@@ -428,12 +443,13 @@ function loadFileHtml(fileName) {
 
 function showFileInput(e) {
     createMask();
-    let fileModel = document.getElementById('file-model');
-    fileModel.style.display = 'block';
-    let backMenu = document.querySelector("#back-menu");
-    backMenu.style.display = 'none';
     let fileInput = document.getElementById('file-input');
     fileInput.value = clickFileName;
+    let fileModel = document.getElementById('file-model');
+    fileModel.style.display = 'block';
+    let backMenu = document.getElementById("back-menu");
+    backMenu.style.display = 'none';
+
 }
 
 function enterpress(e) {
@@ -489,6 +505,10 @@ function saveAll(name) {
         nodeInfoList[i]['x'] = nodeInfo['x'];
         nodeInfoList[i]['y'] = nodeInfo['y'];
         nodeInfoList[i]['title']['name'] = nodeInfo['title'];
+        nodeInfoList[i]['style']['title-color'] = nodeInfo['titleBackgroundColor'];
+        nodeInfoList[i]['style']['border-color'] = nodeInfo['borderColor'];
+        nodeInfoList[i]['style']['node-width'] = `${nodeInfo['width']}px`;
+        nodeInfoList[i]['style']['node-height'] = `${nodeInfo['height']}px`;
     }
     let graph = document.getElementById('graph');
     fetch('/saveHtml', {
@@ -496,6 +516,7 @@ function saveAll(name) {
         body: JSON.stringify({
             'nodes': nodeInfoList,
             'links': linkInfoList,
+            'linkColors': linkColorList,
             'content': graph.innerHTML,
             'name': name
         }),

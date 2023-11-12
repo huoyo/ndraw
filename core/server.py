@@ -229,10 +229,12 @@ def draw_server(host='localhost', port=9999,db_dir='',db_reset = False):
                 content = request_data['content']
                 nodes = request_data['nodes']
                 links = request_data['links']
+                linkColors = request_data['linkColors']
                 info = {
                     'content': content,
                     'nodes': nodes,
                     'links': links,
+                    'linkColors': linkColors,
                 }
                 save_drawed(name, info)
                 self.send_response(200)

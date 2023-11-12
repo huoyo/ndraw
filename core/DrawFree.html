@@ -143,6 +143,7 @@
         let files = filesList;
         let nodeInfoList = []
         let linkInfoList = []
+        let linkColorList = []
         window.onload = function () {
             let options = {
                 "drag": isDrag,
@@ -292,7 +293,7 @@
 </head>
 <body>
 
-<div id="graph" height="650px" width="auto">
+<div id="graph" height="650px" width="auto"  style="position: fixed;left: 0;right: 0;top: 0;bottom: 0;">
 
 </div>
 <canvas id="canvas" style="opacity: 0"></canvas>
